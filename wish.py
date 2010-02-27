@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from __init__ import GnomeConfig
 
 class Wish:

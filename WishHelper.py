@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygtk
 pygtk.require('2.0')
 import gobject
@@ -140,6 +141,7 @@ class ActiveWishTreeView(WishTreeView):
 	def edit_row(self):
 		model = self.get_model()
 		selection = self.get_selection().get_selected()
+		print selection		
 		selected_row = selection[1]
 		if selected_row != None:
 			WishEditor(selected_row, self.edit_row_response) 

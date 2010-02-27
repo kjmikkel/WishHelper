@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 class Note:
 	
 	def __init__(self, text, nid = None):

@@ -1,9 +1,13 @@
+# -*- coding: utf-8 -*-
 class Slags():
 
 	def __init__(self, title, sid = None):
 		self.title = title
 		self.sid = sid
 		self.wish_count = 0
+
+	def get_title(self):
+		return self.title
 
 	def get_sid(self):
 		return self.sid
@@ -22,9 +26,6 @@ class Slags():
 
 	def __str__(self):
 		if self.sid:
-			return "Slags: " + self.title + " (" + self.sid + ")"
+			return "Slags:", self.title + " (" + self.sid + ")"
 		else:
-			return self.title
-
-	def __text__(self):
-		return self.title
+			return "Slags:", self.title

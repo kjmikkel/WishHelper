@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygtk
 pygtk.require('2.0')
 import gobject
@@ -31,15 +32,15 @@ class WishEditor :
 			print slags_store	
 	
 	def fill_in_combobox(self, combobox, List, default_value):
-		store = gtk.ListStore(str)
+		store = gtk.ListStore(str,gobject.TYPE_PYOBJECT)
 
 		# If we do not have anything List, then we fill it out with the default values
 		if not List:
 			List = default_value
 		
 		#for medie in List:			
-		for i in List:
-			store.append([str(i)])
+		for medie in List:
+			store.append([medie.get_title(),medie])
 
 		combobox.set_model(store)
 		if len(List) > 0:		
@@ -69,13 +70,26 @@ class WishEditor :
 			return None
 		return model[active][0]
 
+	def get_selected_combo(self, combobox):
+		combo_model = combobox.get_model()
+		combo_active = combobox.get_active_iter()
+		if combo_active != None:
+			return combo_model.get_value(combo_active, 1)
+		else:
+			return None
+
 	def response(self, widget):
 		
 		name = self.name.get_text()
-		price = self.price.get_value()
-		slags = self.get_active_text(self.slags)  				
-		note = self.get_active_text(self.notes)
+		price = self.price.get_value()		
+
+		slags = self.get_selected_combo(self.slags)
+		print slags
+	
+		note = self.get_selected_combo(self.notes)
+		print note					
 		
+		print "slags:", slags
 		# temp value:
 		if slags == None or note == None:
 			slags = ""
