@@ -113,6 +113,9 @@ class WishEditor :
 				note.add_wish()
 			print old_slags
 			print old_note	 
+		else:
+			slags.add_wish()
+			note.add_wish()		
 
 		self.response([name, price, slags.title, note.title, slags, note])					
 		self.editor.destroy()		
