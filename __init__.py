@@ -3,8 +3,10 @@
 #simple, HIG compliant and well integrated with Gnome.
 import os
 from slags import Slags
+from note import Note
 
 class GnomeConfig:
+
 	current_rep = os.path.dirname(os.path.abspath(__file__))
 	main_gui  	= os.path.join(current_rep, "WishHelperGUI.glade")
 	editor_gui	= os.path.join(current_rep, "wishEditor.glade")
@@ -16,9 +18,12 @@ class GnomeConfig:
 
 	start_media_txt = ["Bog", "Computerspil", "DVD", "Køkenudstyr", "Værktøj"]
 	start_media = []	
-	
+
+	start_notes = [Note("Ingen", "", 0)]	
+
 	sid = 0	
 	for med in start_media_txt:
 		slags = Slags(med, sid)
 		start_media.append(slags)
     	sid += 1
+

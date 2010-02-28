@@ -140,11 +140,10 @@ class ActiveWishTreeView(WishTreeView):
 
 	def edit_row(self):
 		model = self.get_model()
-		selection = self.get_selection().get_selected()
-		print selection		
-		selected_row = selection[1]
-		if selected_row != None:
-			WishEditor(selected_row, self.edit_row_response) 
+		active = self.get_selection().get_selected()[1]
+		if active != None:
+			row = model.get(active, 0, 1, 4, 5)
+			WishEditor(row, self.edit_row_response)
 
 	def edit_row_response(self, widget):
 		print "edit responce"	
@@ -195,9 +194,11 @@ class GUI:
 	def _init_gui(self):
 		self.model = gtk.ListStore(
 		str,		
-		int, 
-		str, 
-		str)
+		int,
+		str,
+		str,
+		gobject.TYPE_PYOBJECT, 
+		gobject.TYPE_PYOBJECT)
 
 		self.task_tv = ActiveWishTreeView()
 		self.task_tv.set_model(self.model)		

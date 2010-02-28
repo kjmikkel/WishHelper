@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 class Note:
 	
-	def __init__(self, text, nid = None):
+	def __init__(self, title, text, nid = None):		
+		self.title = title
 		self.text = text
 		self.nid = nid
 		self.wish_count = 0
@@ -13,15 +14,24 @@ class Note:
 		if not self.nid:
 			self.nid = nid
 
-	def can_delete():
+	def can_delete(self):
 		return self.wish_count == 0
 
-	def has_wish():
+	def has_wish(self):
 		self.wish_count += 1
 
-	def remove_wish():
+	def remove_wish(self):
 		self.wish_count -= 1
 
+	def get_title(self):
+		return self.title
+
+	def get_text(self):
+		return self.text
+
+	def set_text(self, text):
+		self.text = text
+		
 	def __str__(self):
 		if nid:
 			return "Note: " + self.text + " (" + self.nid + ")"

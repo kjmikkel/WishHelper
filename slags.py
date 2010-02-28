@@ -16,13 +16,16 @@ class Slags():
 		if not self.sid:
 			self.sid = sid
 
-	def can_delete():
+	def can_delete(self):
 		return self.wish_count == 0
 	def has_wish():
 		self.wish_count += 1
 
-	def remove_wish():
+	def remove_wish(self):
 		self.wish_count -= 1
+	
+	def __markup__(self):
+		print self.title
 
 	def __str__(self):
 		if self.sid:
