@@ -244,6 +244,7 @@
                             <signal name="clicked" handler="on_new_slags"/>
                           </widget>
                           <packing>
+                            <property name="expand">False</property>
                             <property name="position">0</property>
                           </packing>
                         </child>
@@ -256,6 +257,7 @@
                             <signal name="clicked" handler="on_remove_slags"/>
                           </widget>
                           <packing>
+                            <property name="expand">False</property>
                             <property name="position">1</property>
                           </packing>
                         </child>
@@ -270,6 +272,8 @@
                         <property name="items"></property>
                       </widget>
                       <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
                         <property name="position">1</property>
                       </packing>
                     </child>
@@ -316,6 +320,8 @@
                             <signal name="clicked" handler="on_new_note"/>
                           </widget>
                           <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">False</property>
                             <property name="position">0</property>
                           </packing>
                         </child>
@@ -328,6 +334,8 @@
                             <signal name="clicked" handler="on_remove_note"/>
                           </widget>
                           <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">False</property>
                             <property name="position">1</property>
                           </packing>
                         </child>
@@ -342,6 +350,8 @@
                         <property name="items" translatable="yes"></property>
                       </widget>
                       <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
                         <property name="position">1</property>
                       </packing>
                     </child>
@@ -398,6 +408,7 @@
           </widget>
           <packing>
             <property name="expand">False</property>
+            <property name="fill">False</property>
             <property name="pack_type">end</property>
             <property name="position">0</property>
           </packing>
@@ -407,6 +418,8 @@
   </widget>
   <widget class="GtkDialog" id="remove_list_panel">
     <property name="border_width">5</property>
+    <property name="modal">True</property>
+    <property name="destroy_with_parent">True</property>
     <property name="type_hint">normal</property>
     <property name="has_separator">False</property>
     <child internal-child="vbox">
@@ -486,7 +499,12 @@
     </child>
   </widget>
   <widget class="GtkDialog" id="edit_new">
+    <property name="visible">True</property>
     <property name="border_width">5</property>
+    <property name="resizable">False</property>
+    <property name="modal">True</property>
+    <property name="window_position">center</property>
+    <property name="destroy_with_parent">True</property>
     <property name="type_hint">normal</property>
     <property name="has_separator">False</property>
     <child internal-child="vbox">
@@ -506,7 +524,7 @@
                     <property name="visible">True</property>
                     <property name="orientation">vertical</property>
                     <child>
-                      <widget class="GtkButton" id="eidt_edit">
+                      <widget class="GtkButton" id="edit_edit">
                         <property name="label" translatable="yes">Edit</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
@@ -518,7 +536,7 @@
                       </packing>
                     </child>
                     <child>
-                      <widget class="GtkButton" id="edit_ne">
+                      <widget class="GtkButton" id="new_edit">
                         <property name="label" translatable="yes">New</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
@@ -587,6 +605,7 @@
                       </widget>
                       <packing>
                         <property name="expand">False</property>
+                        <property name="fill">False</property>
                         <property name="position">0</property>
                       </packing>
                     </child>

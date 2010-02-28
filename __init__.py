@@ -2,7 +2,6 @@
 #This is the gnome_frontend package. It's a GTK interface that want to be
 #simple, HIG compliant and well integrated with Gnome.
 import os
-from slags import Slags
 from note import Note
 
 class GnomeConfig:
@@ -21,9 +20,9 @@ class GnomeConfig:
 
 	start_notes = [Note("Ingen", "", 0)]	
 
-	sid = 0	
+	nid = 0	
 	for med in start_media_txt:
-		slags = Slags(med, sid)
+		slags = Note(med, "", nid)
 		start_media.append(slags)
-    	sid += 1
+    	nid += 1
 

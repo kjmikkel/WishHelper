@@ -13,7 +13,6 @@ import sys
 import pango
 
 from __init__ import GnomeConfig
-from slags import Slags
 from note import Note
 	
 class WishEditor :
@@ -46,28 +45,31 @@ class WishEditor :
 			slags_store = self.slags.get_model()
 			print slags_store	
 	
-	def fill_in_combobox(self, combobox, List, default_value):
+	def fill_in_combobox(self, combobox, List):
 		store = gtk.ListStore(str,gobject.TYPE_PYOBJECT)
-
-		# If we do not have anything List, then we fill it out with the default values
-		if not List:
-			List = default_value
-		
-		#for medie in List:			
-		for medie in List:
+	
+		for medie in List:		
 			store.append([medie.get_title(),medie])
 
 		combobox.set_model(store)
 		if len(List) > 0:		
-			combobox.set_active(0)
-		
+			combobox.set_active(0) 		
 
 	def _init_gui(self, Slags, Notes):
 		self.gui = gtk.glade.XML(GnomeConfig.main_gui, "wish_editor")
 		self._init_alias()
 		
-		self.fill_in_combobox(self.slags, Slags, GnomeConfig.start_media)
-		self.fill_in_combobox(self.notes, Notes, GnomeConfig.start_notes)
+		if Slags == None:
+			Slags = GnomeConfig.start_media
+
+		if Notes == None:
+			Notes = GnomeConfig.start_notes
+
+		self.Slags = Slags
+		self.Notes = Notes		
+
+		self.fill_in_combobox(self.slags, Slags)
+		self.fill_in_combobox(self.notes, Notes)
 	
 
 	def _init_alias(self):
@@ -124,22 +126,29 @@ class WishEditor :
 		self.editor.destroy()
 
   	def new_note(self, widget):
-		print "new note"
+		self.edit_new(self.Notes)
 
 	def remove_note(self, widget):
 		self.delete_row(self.notes)
 
 	def delete_row(self, combobox):
 		combo_value = self.get_selected_combo(combobox)
-		if combo_value != None and combo_value.can_delete() and combo_value.get_title() != "Ingen":
+		title = combo_value.get_title() 
+		if combo_value != None and combo_value.can_delete() and (title != "Ingen" and not (title in GnomeConfig.start_media_txt)):
 			combo_active = combobox.get_active()
 			combobox.remove_text(combo_active)
 			if len(combobox.get_model()) > 0:
 				combobox.set_active(0)
 
-	def new_type(self, widget):
-		print "new type"
+	def edit_new(self, List):
+		type_edit = gtk.glade.XML(GnomeConfig.main_gui, "edit_new")
+		self.edit_combo = type_edit.get_widget("edit_combobox")	
+		self.fill_in_combobox(self.edit_combo, List)
+		#print edit_combo.get_model()
 
+	def new_type(self, widget):
+		self.edit_new(self.Slags)
+		
 	def remove_type(self, widget):
 		self.delete_row(self.slags)
 

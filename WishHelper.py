@@ -16,9 +16,6 @@ from wisheditor import WishEditor
 from __init__ import GnomeConfig
 from wish import Wish
 from note import Note
-from slags import Slags
-
-
 
 class WishTreeView(gtk.TreeView):
 	"""TreeView for display of a list of task. Handles DnD primitives too."""
