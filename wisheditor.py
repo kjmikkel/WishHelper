@@ -28,10 +28,10 @@ class WishEditor :
 				break
 
 	def __init__(self, row, response, Slags = None, Notes = None):
-		self._init_gui(Slags, Notes)						
+		self._init_gui(Slags, Notes)
 		self._init_signal_connections()
-		self.response = response		
-		self.old_row = row		
+		self.response = response
+		self.old_row = row
 		if row != []:
 			print row
 			self.name.set_text(row[0])
@@ -99,7 +99,21 @@ class WishEditor :
 
 		slags = self.get_selected_combo(self.slags)
 		note = self.get_selected_combo(self.notes)
-		 
+		
+		if self.old_row != []:
+			print self.old_row			
+			old_slags = self.old_row[2]
+			if old_slags.get_sid() != slags.get_sid():
+				old_slags.remove_wish()
+				slags.add_wish()
+		
+			old_note = self.old_row[3]
+			if old_note.get_nid() != note.get_nid():
+				old_note.remove_wish()
+				note.add_wish()
+			print old_slags
+			print old_note	 
+
 		self.response([name, price, slags.title, note.title, slags, note])					
 		self.editor.destroy()		
 		

@@ -17,7 +17,7 @@ class Note:
 	def can_delete(self):
 		return self.wish_count == 0
 
-	def has_wish(self):
+	def add_wish(self):
 		self.wish_count += 1
 
 	def remove_wish(self):
@@ -33,7 +33,7 @@ class Note:
 		self.text = text
 		
 	def __str__(self):
-		if nid:
-			return "Note: " + self.text + " (" + self.nid + ")"
-		else:
-			return "Note: " + self.text
+		text = "Note: " + self.title +  ": " + self.text
+		if self.nid:
+			text += " (" + self.nid + ")"
+		return text

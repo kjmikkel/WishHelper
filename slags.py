@@ -18,7 +18,8 @@ class Slags():
 
 	def can_delete(self):
 		return self.wish_count == 0
-	def has_wish():
+	
+	def add_wish():
 		self.wish_count += 1
 
 	def remove_wish(self):
@@ -28,7 +29,7 @@ class Slags():
 		print self.title
 
 	def __str__(self):
+		text = "Slags: " + self.title
 		if self.sid:
-			return "Slags:", self.title + " (" + self.sid + ")"
-		else:
-			return "Slags:", self.title
+			text += " (" + self.sid + ")"
+		return text		

@@ -133,20 +133,23 @@ class ActiveWishTreeView(WishTreeView):
 		WishEditor(row, self.insert_row_response)
 		
 	def insert_row_response(self, row):
-		print "new_responce:", row		
+		print "new_response:", row		
 		if row != [] and row != None:
 			liststore = self.get_model()
-			liststore.append(row)		
+			liststore.append(row)
 
 	def edit_row(self):
 		model = self.get_model()
-		active = self.get_selection().get_selected()[1]
-		if active != None:
-			row = model.get(active, 0, 1, 4, 5)
+		self.active = self.get_selection().get_selected()[1]
+		if self.active != None:
+			row = model.get(self.active, 0, 1, 4, 5)
 			WishEditor(row, self.edit_row_response)
 
-	def edit_row_response(self, widget):
-		print "edit responce"	
+	def edit_row_response(self, row):
+		listStore = self.get_model()
+		listStore.insert_after(self.active, row)
+		listStore.remove(self.active)
+			
 			
 	def on_drag_data_received(self, treeview, context, x, y, selection, info,\
 							  timestamp):
