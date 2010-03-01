@@ -32,28 +32,24 @@ class WishEditor :
 		self.response = response
 		self.old_row = row
 		if row != []:
-			print row
 			self.name.set_text(row[0])
 			self.price.set_value(row[1])
 			self.set_active_combo(self.slags, row[2].get_title())
 			self.set_active_combo(self.notes, row[3].get_title())
 
-		if Notes != None:
-			note_store = self.note.get_model()
-			print note_store
-		if Slags != None:
-			slags_store = self.slags.get_model()
-			print slags_store	
-	
 	def fill_in_combobox(self, combobox, List):
-		store = gtk.ListStore(str,gobject.TYPE_PYOBJECT)
-	
-		for medie in List:		
-			store.append([medie.get_title(),medie])
-
+		store = gtk.ListStore(str, gobject.TYPE_PYOBJECT)
+				
+		for medie in List:			
+			store.append([medie.get_title(), medie])
+		
 		combobox.set_model(store)
-		if len(List) > 0:		
-			combobox.set_active(0) 		
+		cell = gtk.CellRendererText()
+		combobox.pack_start(cell, True)
+  		combobox.add_attribute(cell, 'text',0)
+
+		if len(List) > 0:	
+			combobox.set_active(0)
 
 	def _init_gui(self, Slags, Notes):
 		self.gui = gtk.glade.XML(GnomeConfig.main_gui, "wish_editor")
@@ -67,7 +63,10 @@ class WishEditor :
 
 		self.Slags = Slags
 		self.Notes = Notes		
-
+		
+		print "Slags:", self.Slags
+		print "Notes:", self.Notes
+		
 		self.fill_in_combobox(self.slags, Slags)
 		self.fill_in_combobox(self.notes, Notes)
 	
@@ -144,7 +143,7 @@ class WishEditor :
 		type_edit = gtk.glade.XML(GnomeConfig.main_gui, "edit_new")
 		self.edit_combo = type_edit.get_widget("edit_combobox")	
 		self.fill_in_combobox(self.edit_combo, List)
-		#print edit_combo.get_model()
+		print len(self.edit_combo.get_model())
 
 	def new_type(self, widget):
 		self.edit_new(self.Slags)

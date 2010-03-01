@@ -8,7 +8,7 @@ class GnomeConfig:
 
 	current_rep = os.path.dirname(os.path.abspath(__file__))
 	main_gui  	= os.path.join(current_rep, "WishHelperGUI.glade")
-	editor_gui	= os.path.join(current_rep, "wishEditor.glade")
+	#editor_gui	= os.path.join(current_rep, "wishEditor.glade")
 	
 	COL_TITLE     = 0
 	COL_PRICE     = 1
