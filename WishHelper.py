@@ -12,7 +12,7 @@ import time
 import sys
 import pango
 
-from wisheditor import WishEditor
+from wish_editor import WishEditor
 from __init__ import GnomeConfig
 from wish import Wish
 from note import Note
