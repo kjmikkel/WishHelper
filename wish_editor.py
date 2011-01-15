@@ -158,10 +158,22 @@ class WishEditor:
 			"on_edit_slags": self.edit_type,
 			"on_remove_slags": self.remove_type,
 			
+			"on_save": self.save,
+			"on_load": self.load,
+			"on_print": self.print_latex,
+			
 			"on_delete_cancel": lambda x: x.hide
         	}
 		self.gui.signal_autoconnect(SIGNAL_CONNECTIONS_DIC)
+	
+	def save(self, widget): 
+		print "do save"
 		
+	def load(self, widget):
+		print "do load"
+		
+	def print_latex(self, widget):
+		print "do print"	
 		
   	def cancel(self, widget):
 		self.editor.destroy()
