@@ -14,7 +14,7 @@ class Note():
 		self.title = new_title
 
 	def get_id(self):
-		return self.si
+		return self.nid
 
 	def set_id(self, nid):
 		if not self.nid:
@@ -34,6 +34,9 @@ class Note():
 
 	def set_text(self, new_text):
 		self.text = new_text
+
+	def semi_serilize(self):
+		return str(self.get_title()), str(self.get_text()), str(self.get_id()) 
 
 	def __str__(self):
 		text = self.title + ": " + self.text

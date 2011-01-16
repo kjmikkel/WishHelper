@@ -57,18 +57,9 @@ class WishEditor:
 		self.gui = gtk.glade.XML(GnomeConfig.main_gui, "wish_editor")
 		self._init_alias()
 		
-		if Slags == None:
-			Slags = GnomeConfig.start_media
-
-		if Notes == None:
-			Notes = GnomeConfig.start_notes
-
 		self.Slags = Slags
 		self.Notes = Notes		
-		
-		print "Slags:", self.Slags
-		print "Notes:", self.Notes
-		
+				
 		self.fill_in_combobox(self.slags, Slags)
 		self.fill_in_combobox(self.notes, Notes)
 	
@@ -143,7 +134,7 @@ class WishEditor:
 
 	def modify_single_item(self, new_item, old_item, store):
 		old_title = old_item.get_title()
-				
+			
 		for item in store:
 			text = item[0]
 			if text == old_title:
@@ -153,36 +144,24 @@ class WishEditor:
 	def add_single_item(self, item, store):
 		store.append([item.get_title(), item])
 
-  	
   	def _init_signal_connections(self):
 		SIGNAL_CONNECTIONS_DIC = {
 			"on_cancel": self.cancel,
 			"on_response": self.response,
 			
+			#Note
             "on_new_note": self.new_note,
 			"on_edit_note": self.edit_note,
 			"on_remove_note": self.remove_note,            
 			
+			#Type
 			"on_new_slags": self.new_type,
 			"on_edit_slags": self.edit_type,
 			"on_remove_slags": self.remove_type,
-			
-			"on_save": self.save,
-			"on_load": self.load,
-			"on_print": self.print_latex,
-			
+						
 			"on_delete_cancel": lambda x: x.hide
         	}
 		self.gui.signal_autoconnect(SIGNAL_CONNECTIONS_DIC)
-	
-	def save(self, widget): 
-		print "do save"
-		
-	def load(self, widget):
-		print "do load"
-		
-	def print_latex(self, widget):
-		print "do print"	
 		
   	def cancel(self, widget):
 		self.editor.destroy()

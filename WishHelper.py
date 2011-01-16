@@ -11,10 +11,11 @@ import threading
 import time
 import sys
 import pango
+import json
 
 from wish_editor import WishEditor
 from __init__ import GnomeConfig
-from wish import Wish
+#from wish import Wish
 from note import Note
 
 class WishTreeView(gtk.TreeView):
@@ -51,6 +52,9 @@ class ActiveWishTreeView(WishTreeView):
 	]
 
 	def __init__(self):
+		self.Notes = GnomeConfig.start_notes
+		self.Slags = GnomeConfig.start_media
+		
 		WishTreeView.__init__(self)
 		self._init_tree_view()
 
@@ -128,7 +132,7 @@ class ActiveWishTreeView(WishTreeView):
 
 	def insert_row(self):
 		row = []
-		WishEditor(row, self.insert_row_response)
+		WishEditor(row, self.insert_row_response, self.Slags, self.Notes)
 		
 	def insert_row_response(self, row):
 		print "new_response:", row		
@@ -141,7 +145,7 @@ class ActiveWishTreeView(WishTreeView):
 		self.active = self.get_selection().get_selected()[1]
 		if self.active != None:
 			row = model.get(self.active, 0, 1, 4, 5)
-			WishEditor(row, self.edit_row_response)
+			WishEditor(row, self.edit_row_response, self.Slags, self.Notes)
 
 	def edit_row_response(self, row):
 		listStore = self.get_model()
@@ -212,12 +216,66 @@ class GUI:
 	def _init_signal_connections(self):
 		SIGNAL_CONNECTIONS_DIC = {
 			"on_add_wish": self.add_wish,
-			"on_cancel": self.cancel,
 			"on_edit_wish": self.on_edit_wish,
 			"on_delete_wish": self.on_delete_wish,
+
+			"on_save": self.save,
+			"on_load": self.load,
+			"on_print": self.print_latex,
+			"on_cancel": self.cancel,
+			
 			"gtk_main_quit": self.on_close
 		}
 		self.gui.signal_autoconnect(SIGNAL_CONNECTIONS_DIC)
+
+	def save(self, widget):
+		model = self.task_tv.get_model()
+		
+		slags = []
+		notes = []
+		wish = []
+		
+		for slags_item in self.task_tv.Slags:
+			slags.append(slags_item.semi_serilize())
+		
+		for note_item in self.task_tv.Notes:
+			notes.append(note_item.semi_serilize())
+		
+		for wish_item in model:
+			temp = [wish_item[0], wish_item[1], wish_item[2], wish_item[3]]
+			wish.append(temp)
+		
+		data = [slags, notes, wish]
+		write_value = json.dumps(data)
+		
+		chooser = gtk.FileChooserDialog(
+						 title="Gem dine ønsker",action=gtk.FILE_CHOOSER_ACTION_SAVE,
+        		buttons=(gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL,
+						 gtk.STOCK_SAVE,gtk.RESPONSE_OK
+						 ))
+		filter = gtk.FileFilter()
+		filter.set_name("Ønske filer")
+		filter.add_pattern("*.json")
+		chooser.add_filter(filter)
+
+		chooser.set_default_response(gtk.RESPONSE_OK)
+
+		response = chooser.run()
+
+#		file_name = chooser.get_filename()
+
+		if response == gtk.RESPONSE_OK:  
+			file = open(chooser.get_filename(), "w")
+			file.write(write_value)
+			file.close()
+		
+		chooser.destroy()
+		
+	def load(self, widget):
+		print "do load"
+		
+	def print_latex(self, widget):
+		print "do print"
 
 	def get_selected_task(self, tv=None):
 		"""Return the 'uid' of the selected task
