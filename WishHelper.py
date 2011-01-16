@@ -15,7 +15,7 @@ import json
 
 from wish_editor import WishEditor
 from __init__ import GnomeConfig
-#from wish import Wish
+from wish import Wish
 from note import Note
 
 class WishTreeView(gtk.TreeView):
@@ -242,7 +242,8 @@ class GUI:
 			notes.append(note_item.semi_serilize())
 		
 		for wish_item in model:
-			temp = [wish_item[0], wish_item[1], wish_item[2], wish_item[3]]
+			wish_temp = Wish(wish_item)
+			temp = [wish_temp.get_title(), wish_temp.get_price(), wish_temp.get_type(), wish_temp.get_note()]
 			wish.append(temp)
 		
 		data = [slags, notes, wish]
@@ -257,12 +258,10 @@ class GUI:
 		filter.set_name("Ønske filer")
 		filter.add_pattern("*.json")
 		chooser.add_filter(filter)
-
 		chooser.set_default_response(gtk.RESPONSE_OK)
 
-		response = chooser.run()
 
-#		file_name = chooser.get_filename()
+		response = chooser.run()
 
 		if response == gtk.RESPONSE_OK:  
 			file = open(chooser.get_filename(), "w")
@@ -272,7 +271,71 @@ class GUI:
 		chooser.destroy()
 		
 	def load(self, widget):
-		print "do load"
+		chooser = gtk.FileChooserDialog(
+						 title="Hent dine gemte ønsker",
+						 action=gtk.FILE_CHOOSER_ACTION_OPEN,
+        		buttons=(gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL,
+						 gtk.STOCK_OPEN,gtk.RESPONSE_OK
+						 ))
+		
+		filter = gtk.FileFilter()
+		filter.set_name("Ønske filer")
+		filter.add_pattern("*.json")
+		chooser.add_filter(filter)
+		chooser.set_default_response(gtk.RESPONSE_OK)
+		
+		response = chooser.run()
+		
+		if response == gtk.RESPONSE_OK:
+			file_name = chooser.get_filename()
+			file = open(file_name, "r")
+			file_data = file.read()
+			file.close()
+			
+			data = json.loads(file_data)
+			
+			slags = data[0]
+			notes = data[1]
+			wish_list = data[2]
+
+			Slags = []
+			Notes = []
+			Wish_ac = []
+
+			for slags_item in slags:
+				Slags.append(Note(slags_item[0], slags_item[1], slags_item[2]))
+				
+			for notes_item in Notes:
+				Notes.append(Note(notes_item[0], notes_item[1], notes_item[2]))
+
+			for wish_item in wish_list:
+				
+				input = (wish_item, 0)
+				wish_val = Wish(input)
+				
+				type_title = wish_val.get_type()
+				note_title = wish_val.get_note()
+				 
+				for slags_item in Slags:
+					if type_title == slags_item.get_title():
+						wish_val.set_note_val(slags_item)
+						break
+					
+				for note_item in Notes:
+					if note_title == note_item.get_title():
+						wish_val.set_type_val(note_title)
+						break
+			
+				Wish_ac.append(wish_val.get_row())
+							
+			self.Slags = Slags
+			self.Notes = Notes
+			
+			store = self.task_tv.get_model()
+			for wish in Wish_ac:
+				store.append(wish)
+			
+		chooser.destroy()
 		
 	def print_latex(self, widget):
 		print "do print"

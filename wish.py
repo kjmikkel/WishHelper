@@ -4,13 +4,25 @@ from __init__ import GnomeConfig
 class Wish:
 	""" A wish for birthdays, christmas or other events """
 
-	def __init__(self, row):
-		self.row = row
-		self.title = row[GnomeConfig.COL_TITLE]
-		self.price = row[GnomeConfig.COL_PRICE]
-		self.type = row[GnomeConfig.COL_TYPE]
-		self.note = row[GnomeConfig.COL_NOTE]
-
+	def __init__(self, data):
+		
+		if isinstance(data, list):
+			row = data
+			self.row = row
+			self.title = row[GnomeConfig.COL_TITLE]
+			self.price = row[GnomeConfig.COL_PRICE]
+			self.type = row[GnomeConfig.COL_TYPE]
+			self.note = row[GnomeConfig.COL_NOTE]
+			self.type_val = row[GnomeConfig.COL_TYPE_VAL]
+			self.note_val = row[GnomeConfig.COL_NOTE_VAL]
+		else:
+			data = data[0]
+			self.row = range(0, 6)
+			self.set_title(data[0])
+			self.set_price(data[1])
+			self.set_type(data[2])
+			self.set_note(data[3])
+			
 	def get_title(self):
 		return self.title
 
@@ -23,7 +35,7 @@ class Wish:
 
 	def set_price(self, new_price):
 		self.row[GnomeConfig.COL_PRICE] = new_price		
-		self.price = price
+		self.price = new_price
 
 	def get_type(self):
 		return self.type
@@ -39,13 +51,27 @@ class Wish:
 		self.row[GnomeConfig.COL_NOTE] = new_note
 		self.note = new_note
 
+	def set_note_val(self, note_val):
+		self.row[GnomeConfig.COL_NOTE_VAL] = note_val
+		self.note_val = note_val
+		
+	def get_note_val(self):
+		return self.note_val
+		
+	def set_type_val(self, type_val):
+		self.row[GnomeConfig.COL_TYPE_VAL] = type_val
+		self.type_val = type_val
+		
+	def get_type_val(self):
+		return self.type_val
+
 	def get_row(self):
 		return self.row
 
 	def __str__(self):
 		s = "Task Object\n"
-		s = s + "Title:  " + self.title + "\n"
-		s = s + "Price:     " + str(self.price) + "\n"
-		s = s + + str(self.type) + "\n"
-		s = s + + str(self.note)
+		s += "Title:\t" + self.title + "\n"
+		s += "Price:\t" + str(self.price) + "\n"
+		s += str(self.type) + "\n"
+		s += str(self.note)
 		return s

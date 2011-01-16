@@ -14,6 +14,8 @@ class GnomeConfig:
 	COL_PRICE     = 1
 	COL_TYPE      = 2
 	COL_NOTE      = 3
+	COL_TYPE_VAL  = 4
+	COL_NOTE_VAL  = 5
 		
 	start_media_txt = ["Bog", "Computerspil", "DVD", "Køkenudstyr", "Værktøj"]
 	start_media = []	
