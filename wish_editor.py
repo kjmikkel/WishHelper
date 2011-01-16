@@ -103,25 +103,7 @@ class WishEditor:
 			if len(combobox.get_model()) > 0:
 				combobox.set_active(0)
 
-  	# Notes
-  	def new_note(self, widget):
-		NoteEditor(None, self.add_new_note)
-
-	def add_new_note(self, item):
-		store = self.notes.get_model()
-		self.add_single_item(item, store)
-
-	def edit_note(self, widget):
-		item = self.get_selected_combo(self.notes)
-		NoteEditor(item, self.do_note_edit)
-	
-	def do_note_edit(self, widget):
-		print "do edit stuff"
-		
-	def remove_note(self, widget):
-		self.delete_row(self.notes)
-
-	# Types
+		# Types
 	def new_type(self, widget):
 		NoteEditor(None, self.add_new_type)
 		
@@ -133,13 +115,40 @@ class WishEditor:
 		item = self.get_selected_combo(self.slags)
 		NoteEditor(item, self.do_type_edit)
 
-	def do_type_edit(self, item):
-		print "do edit stuff"
+	def do_type_edit(self, new_item, old_item):
+		store = self.slags.get_model()
+		self.modify_single_item(new_item, old_item, store)
 				
 	def remove_type(self, widget):
 		self.delete_row(self.slags)
+  	
+  		# Notes
+  	def new_note(self, widget):
+		NoteEditor(None, self.add_new_note)
 
+	def add_new_note(self, item):
+		store = self.notes.get_model()
+		self.add_single_item(item, store)
 
+	def edit_note(self, widget):
+		item = self.get_selected_combo(self.notes)
+		NoteEditor(item, self.do_note_edit)
+	
+	def do_note_edit(self, new_item, old_item):
+		store = self.notes.get_model()
+		self.modify_single_item(new_item, old_item, store)
+		
+	def remove_note(self, widget):
+		self.delete_row(self.notes)
+
+	def modify_single_item(self, new_item, old_item, store):
+		old_title = old_item.get_title()
+				
+		for item in store:
+			text = item[0]
+			if text == old_title:
+				item[0] = new_item.get_title()
+				break
 
 	def add_single_item(self, item, store):
 		store.append([item.get_title(), item])
@@ -180,7 +189,7 @@ class WishEditor:
 		
 	def response(self, widget):	
 		name = self.name.get_text()
-		price = self.price.get_value()		
+		price = self.price.get_value()	
 
 		slags = self.get_selected_combo(self.slags)
 		note = self.get_selected_combo(self.notes)
