@@ -9,6 +9,9 @@ class Note():
 
 	def get_title(self):
 		return self.title
+	
+	def set_title(self, new_title):
+		self.title = new_title
 
 	def get_id(self):
 		return self.si
@@ -29,8 +32,8 @@ class Note():
 	def get_text(self):
 		return self.text
 
-	def set_text(self, text):
-		self.text = text
+	def set_text(self, new_text):
+		self.text = new_text
 
 	def __str__(self):
 		text = self.title + ": " + self.text
