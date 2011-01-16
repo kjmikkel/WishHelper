@@ -11,6 +11,7 @@ import threading
 import time
 import sys
 import pango
+import copy
 
 from __init__ import GnomeConfig
 from note import Note
@@ -29,6 +30,7 @@ class NoteEditor:
         self._init_alias()
         if self.item != None:
             self.title.set_text(self.item.get_title())
+            self.text.set_text(self.item.get_text())
             
         self._init_signal_connections()
             
@@ -54,9 +56,10 @@ class NoteEditor:
             new_note = Note(title, text)
             self.callback(new_note)
         else:
-            self.item.set_title = title
-            self.item.set_text = text
-            self.callback(item)
+            old_item = copy.deepcopy(self.item)
+            self.item.set_title(title)
+            self.item.set_text(text)
+            self.callback(self.item, old_item)
         self.editor.destroy()
             
     def cancel(self, widget):
