@@ -23,6 +23,7 @@ class WishTreeView(gtk.TreeView):
 	def __init__(self, model=None):
 		gtk.TreeView.__init__(self)
 		self.columns = []
+		self.set_reorderable(True)
 		self.show()
 
 	def get_column(self, index):
@@ -165,7 +166,6 @@ class ActiveWishTreeView(WishTreeView):
 	  		model.move_before(drag_iter, None)
 		
 		self.emit_stop_by_name('drag_data_received')
-
 	
 class GUI:
 	def __init__(self):
