@@ -6,7 +6,8 @@ class Wish:
 
 	def __init__(self, data):
 		
-		if isinstance(data, list):
+		if not isinstance(data, tuple):
+			print "list"
 			row = data
 			self.row = row
 			self.title = row[GnomeConfig.COL_TITLE]
@@ -16,6 +17,7 @@ class Wish:
 			self.type_val = row[GnomeConfig.COL_TYPE_VAL]
 			self.note_val = row[GnomeConfig.COL_NOTE_VAL]
 		else:
+			print "not list"
 			data = data[0]
 			self.row = range(0, 6)
 			self.set_title(data[0])

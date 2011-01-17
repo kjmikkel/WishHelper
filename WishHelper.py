@@ -242,6 +242,7 @@ class GUI:
 			notes.append(note_item.semi_serilize())
 		
 		for wish_item in model:
+			print "wish_item:", wish_item
 			wish_temp = Wish(wish_item)
 			temp = [wish_temp.get_title(), wish_temp.get_price(), wish_temp.get_type(), wish_temp.get_note()]
 			wish.append(temp)
@@ -333,6 +334,7 @@ class GUI:
 			
 			store = self.task_tv.get_model()
 			for wish in Wish_ac:
+				print "adding:", wish
 				store.append(wish)
 			
 		chooser.destroy()
