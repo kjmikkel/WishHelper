@@ -33,8 +33,9 @@ class NoteEditor(object):
     def _init_gui(self):
         self.builder = gtk.Builder()
         self.builder.add_from_file(GnomeConfig.edit_gui)
-            
+        
         self._init_alias()
+        self.editor.set_title("Edit type eller Note")
         
         if self.item != None:
             self.title_text.set_text(self.item.get_title())

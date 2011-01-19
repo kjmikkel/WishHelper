@@ -197,8 +197,7 @@ class ActiveWishTreeView(WishTreeView):
 	
 class GUI:
 	def __init__(self):
-		# Load window tree		
-		self._init_aliases()		
+		# Load window tree				
 		self._init_gui()
 		self._init_signal_connections()	
 		self.current_row = None
@@ -227,6 +226,8 @@ class GUI:
 		str,
 		gobject.TYPE_PYOBJECT, 
 		gobject.TYPE_PYOBJECT)
+		self._init_aliases()
+		self.gui.set_title("Ønske hjælper")
 
 		self.task_tv = ActiveWishTreeView()
 		self.task_tv.set_model(self.model)		

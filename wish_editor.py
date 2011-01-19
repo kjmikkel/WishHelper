@@ -62,6 +62,7 @@ class WishEditor:
 		self.builder = gtk.Builder()
 		self.builder.add_from_file(GnomeConfig.helper_gui)
 		self._init_alias()
+		self.editor.set_title("Lav et Ønske")
 		
 		self.Slags = Slags
 		self.Notes = Notes		
