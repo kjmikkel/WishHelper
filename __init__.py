@@ -8,7 +8,10 @@ from enumerate import Enumerate
 class GnomeConfig:
 
 	current_rep = os.path.dirname(os.path.abspath(__file__))
-	main_gui  	= os.path.join(current_rep, "WishHelperGUI.glade")
+	current_rep = os.path.join(current_rep, "gui")
+	main_gui  	= os.path.join(current_rep, "WishHelperMain.glade")
+	helper_gui  = os.path.join(current_rep, "WishHelperEditor.glade")
+	edit_gui 	= os.path.join(current_rep, "WishHelperEdit.glade")
 	
 	COL_TITLE     = 0
 	COL_PRICE     = 1

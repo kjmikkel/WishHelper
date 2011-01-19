@@ -107,11 +107,7 @@ class WishEditor:
 	
 	def edit_type(self, widget):
 		item = self.get_selected_combo(self.slags)
-		NoteEditor(item, self.do_type_edit)
-
-	def do_type_edit(self, new_item, old_item):
-		store = self.slags.get_model()
-		self.modify_single_item(new_item, old_item, store)
+		self.modify_single_item(item, self.slags)
 				
 	def remove_type(self, widget):
 		self.delete_row(self.slags)
@@ -123,23 +119,28 @@ class WishEditor:
 
 	def edit_note(self, widget):
 		item = self.get_selected_combo(self.notes)
-		NoteEditor(item, self.do_note_edit)
-	
-	def do_note_edit(self, new_item, old_item):
-		store = self.notes.get_model()
-		self.modify_single_item(new_item, old_item, store)
-		
+		self.modify_single_item(item, self.notes)
+			
 	def remove_note(self, widget):
 		self.delete_row(self.notes)
 
-	def modify_single_item(self, new_item, old_item, store):
+	def modify_single_item(self, old_item, store):
+		editor = NoteEditor(old_item)
+		result = editor.run()	
+		
+		store = store.get_model()
 		old_title = old_item.get_title()
 			
-		for item in store:
-			text = item[0]
-			if text == old_title:
-				item[0] = new_item.get_title()
-				break
+		if result == 1:
+			new_item = editor.new_note
+			for item in store:
+				text = item[0]
+				if text == old_title:
+					item[0] = new_item.get_title()
+					item[1] = new_item
+					break
+		
+		editor.destroy()
 
 	def add_single_item(self, store):
 		editor = NoteEditor(None)

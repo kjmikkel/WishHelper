@@ -35,9 +35,10 @@ class NoteEditor(object):
         self.builder.add_from_file(GnomeConfig.edit_gui)
             
         self._init_alias()
+        
         if self.item != None:
-            self.title.set_text(self.item.get_title())
-            selfdd.text.set_text(self.item.get_text())
+            self.title_text.set_text(self.item.get_title())
+            self.text_text.set_text(self.item.get_text())
             
         self._init_signal_connections()
             
