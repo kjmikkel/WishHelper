@@ -131,27 +131,51 @@ class ActiveWishTreeView(WishTreeView):
 	  		model.remove(selected_row)
 
 	def insert_row(self):
-		row = []
-		WishEditor(row, self.insert_row_response, self.Slags, self.Notes)
+		editor = WishEditor([], self.Slags, self.Notes)
+		result = editor.run()
 		
-	def insert_row_response(self, row):
-		print "new_response:", row		
-		if row != [] and row != None:
-			liststore = self.get_model()
-			liststore.append(row)
-
+		if result == 1:
+			name = editor.name.get_text()
+			price = editor.price.get_value()
+			
+			slags = editor.get_selected_combo(editor.slags)
+			note = editor.get_selected_combo(editor.notes)
+			
+			if len(name) > 0 and price >= 0:
+				liststore = self.get_model()
+				liststore.append([name, price, slags.title, note.title, slags, note])
+			
+			self.Slags = editor.Slags
+			self.Notes = editor.Notes
+		
+		editor.destroy()
+		
 	def edit_row(self):
 		model = self.get_model()
 		self.active = self.get_selection().get_selected()[1]
 		if self.active != None:
 			row = model.get(self.active, 0, 1, 4, 5)
-			WishEditor(row, self.edit_row_response, self.Slags, self.Notes)
-
-	def edit_row_response(self, row):
-		listStore = self.get_model()
-		listStore.insert_after(self.active, row)
-		listStore.remove(self.active)
+			editor = WishEditor(row, self.Slags, self.Notes)
+			result = editor.run()
+		
+			if result == 1:
+				listStore = self.get_model()
+				
+				name = editor.name.get_text()
+				price = editor.price.get_value()
 			
+				slags = editor.get_selected_combo(editor.slags)
+				note = editor.get_selected_combo(editor.notes)
+			
+				if len(name) > 0 and price >= 0:
+					listStore.insert_after(self.active, [name, price, slags.title, note.title, slags, note])
+					listStore.remove(self.active)
+					liststore = self.get_model()
+			
+			self.Slags = editor.Slags
+			self.Notes = editor.Notes
+			
+			editor.destroy()
 			
 	def on_drag_data_received(self, treeview, context, x, y, selection, info,\
 							  timestamp):
@@ -209,9 +233,17 @@ class GUI:
 		self.wishlist.add(self.task_tv)
 		
 	def _init_aliases(self):	
-		self.gui = gtk.glade.XML(GnomeConfig.main_gui, "MainWindow")
-		self.window = self.gui.get_widget("MainWindow")
-		self.wishlist = self.gui.get_widget("WishList")
+		self.builder = gtk.Builder()
+		self.builder.add_from_file(GnomeConfig.main_gui)
+		
+		self.gui = self.builder.get_object("MainWindow")
+
+		self.window = self.builder.get_object("MainWindow")
+		self.wishlist = self.builder.get_object("WishList")
+		
+#		self.gui = gtk.glade.XML(GnomeConfig.main_gui, "MainWindow")
+	#	self.window = self.gui.get_widget("MainWindow")
+	#	self.wishlist = self.gui.get_widget("WishList")
 	
 	def _init_signal_connections(self):
 		SIGNAL_CONNECTIONS_DIC = {
@@ -226,7 +258,8 @@ class GUI:
 			
 			"gtk_main_quit": self.on_close
 		}
-		self.gui.signal_autoconnect(SIGNAL_CONNECTIONS_DIC)
+		#self.gui.signal_autoconnect(SIGNAL_CONNECTIONS_DIC)
+		self.builder.connect_signals(SIGNAL_CONNECTIONS_DIC)
 
 	def save(self, widget):
 		model = self.task_tv.get_model()

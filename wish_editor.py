@@ -28,16 +28,21 @@ class WishEditor:
 			if val == break_value:
 				break
 
-	def __init__(self, row, response, Slags = None, Notes = None):
+	def __init__(self, row, Slags = None, Notes = None):
 		self._init_gui(Slags, Notes)
 		self._init_signal_connections()
-		self.response = response
 		self.old_row = row
 		if row != []:
 			self.name.set_text(row[0])
 			self.price.set_value(row[1])
 			self.set_active_combo(self.slags, row[2].get_title())
 			self.set_active_combo(self.notes, row[3].get_title())
+
+	def run(self):
+		return self.editor.run()
+	
+	def destroy(self):
+		self.editor.destroy()
 
 	def fill_in_combobox(self, combobox, List):
 		store = gtk.ListStore(str, gobject.TYPE_PYOBJECT)
@@ -54,7 +59,8 @@ class WishEditor:
 			combobox.set_active(0)
 
 	def _init_gui(self, Slags, Notes):
-		self.gui = gtk.glade.XML(GnomeConfig.main_gui, "wish_editor")
+		self.builder = gtk.Builder()
+		self.builder.add_from_file(GnomeConfig.helper_gui)
 		self._init_alias()
 		
 		self.Slags = Slags
@@ -64,11 +70,11 @@ class WishEditor:
 		self.fill_in_combobox(self.notes, Notes)
 	
 	def _init_alias(self):
-		self.editor = self.gui.get_widget("wish_editor")		
-		self.name  = self.gui.get_widget("wish_text")
-		self.price = self.gui.get_widget("price_spin")
-		self.slags = self.gui.get_widget("type_combo")
-		self.notes = self.gui.get_widget("note_combo")
+		self.editor = self.builder.get_object("wish_editor")		
+		self.name  = self.builder.get_object("wish_text")
+		self.price = self.builder.get_object("price_spin")
+		self.slags = self.builder.get_object("type_combo")
+		self.notes = self.builder.get_object("note_combo")
 		
 	def get_active_text(self, combobox):
 		model = combobox.get_model()
@@ -96,11 +102,8 @@ class WishEditor:
 
 		# Types
 	def new_type(self, widget):
-		NoteEditor(None, self.add_new_type)
-		
-	def add_new_type(self, item):
 		store = self.slags.get_model()
-		self.add_single_item(item, store)
+		self.add_single_item(store)		
 	
 	def edit_type(self, widget):
 		item = self.get_selected_combo(self.slags)
@@ -115,11 +118,8 @@ class WishEditor:
   	
   		# Notes
   	def new_note(self, widget):
-		NoteEditor(None, self.add_new_note)
-
-	def add_new_note(self, item):
 		store = self.notes.get_model()
-		self.add_single_item(item, store)
+		self.add_single_item(store)
 
 	def edit_note(self, widget):
 		item = self.get_selected_combo(self.notes)
@@ -141,54 +141,64 @@ class WishEditor:
 				item[0] = new_item.get_title()
 				break
 
-	def add_single_item(self, item, store):
-		store.append([item.get_title(), item])
+	def add_single_item(self, store):
+		editor = NoteEditor(None)
+		result = editor.run()
+		if result == 1:
+			item = editor.new_note
+			store.append([item.get_title(), item])
+		
+		editor.destroy()
 
   	def _init_signal_connections(self):
 		SIGNAL_CONNECTIONS_DIC = {
-			"on_cancel": self.cancel,
-			"on_response": self.response,
-			
-			#Note
-            "on_new_note": self.new_note,
-			"on_edit_note": self.edit_note,
-			"on_remove_note": self.remove_note,            
+	#		"on_cancel": self.cancel,
+	#		"on_response": self.response,
 			
 			#Type
 			"on_new_slags": self.new_type,
 			"on_edit_slags": self.edit_type,
 			"on_remove_slags": self.remove_type,
+			
+			#Note
+            "on_new_note": self.new_note,
+			"on_edit_note": self.edit_note,
+			"on_remove_note": self.remove_note,            
 						
 			"on_delete_cancel": lambda x: x.hide
         	}
-		self.gui.signal_autoconnect(SIGNAL_CONNECTIONS_DIC)
+		self.builder.connect_signals(SIGNAL_CONNECTIONS_DIC)
+#		self.gui.signal_autoconnect(SIGNAL_CONNECTIONS_DIC)
 		
-  	def cancel(self, widget):
-		self.editor.destroy()
+  	#def cancel(self, widget):
+#		self.editor.destroy()
 		
-	def response(self, widget):	
-		name = self.name.get_text()
-		price = self.price.get_value()	
+#	def response(self, widget):	
+#		name = self.name.get_text()
+#		price = self.price.get_value()	
+#
+#		slags = self.get_selected_combo(self.slags)
+#		note = self.get_selected_combo(self.notes)
+		
+#		if self.old_row != []:
+#			print self.old_row			
+#			old_slags = self.old_row[2]
+#			if old_slags.get_sid() != slags.get_sid():
+#				old_slags.remove_wish()
+#				slags.add_wish()
+		
+#			old_note = self.old_row[3]
+#			if old_note.get_nid() != note.get_nid():
+#				old_note.remove_wish()
+#				note.add_wish()
+#			print old_slags
+#			print old_note	 
+#		else:
+#			slags.add_wish()
+#			note.add_wish()		
+		
+#		self.response(gtk.RESPONSE_OK)
 
-		slags = self.get_selected_combo(self.slags)
-		note = self.get_selected_combo(self.notes)
 		
-		if self.old_row != []:
-			print self.old_row			
-			old_slags = self.old_row[2]
-			if old_slags.get_sid() != slags.get_sid():
-				old_slags.remove_wish()
-				slags.add_wish()
-		
-			old_note = self.old_row[3]
-			if old_note.get_nid() != note.get_nid():
-				old_note.remove_wish()
-				note.add_wish()
-			print old_slags
-			print old_note	 
-		else:
-			slags.add_wish()
-			note.add_wish()		
-
-		self.response([name, price, slags.title, note.title, slags, note])					
-		self.editor.destroy()		
+		#self.response([name, price, slags.title, note.title, slags, note])					
+		#self.editor.destroy()		
