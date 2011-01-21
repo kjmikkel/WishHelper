@@ -82,7 +82,7 @@ class ActiveWishTreeView(WishTreeView):
 		self.connect('drag_data_received', self.on_drag_data_received)
 
 	def create_column(self, label, place):
-		title_col   = gtk.TreeViewColumn()
+		title_col = gtk.TreeViewColumn()
 		render_text = gtk.CellRendererText()
 		render_text.set_property("ellipsize", pango.ELLIPSIZE_END)
 		title_col.set_title(label)
@@ -97,10 +97,10 @@ class ActiveWishTreeView(WishTreeView):
 
 	def _init_tree_view(self):
 		# Columns
-		name_col  = self.create_column("Navn", GnomeConfig.COL_TITLE)
+		name_col = self.create_column("Navn", GnomeConfig.COL_TITLE)
 		price_col = self.create_column("Pris", GnomeConfig.COL_PRICE)
-		type_col  = self.create_column("Type", GnomeConfig.COL_TYPE)
-		note_col  = self.create_column("Note", GnomeConfig.COL_NOTE)	
+		type_col = self.create_column("Type", GnomeConfig.COL_TYPE)
+		note_col = self.create_column("Note", GnomeConfig.COL_NOTE)	
 
 		# Global treeview properties
 		self.set_property("expander-column", name_col)
@@ -155,6 +155,7 @@ class ActiveWishTreeView(WishTreeView):
 		self.active = self.get_selection().get_selected()[1]
 		if self.active != None:
 			row = model.get(self.active, 0, 1, 4, 5)
+			print row
 			editor = WishEditor(row, self.Slags, self.Notes)
 			result = editor.run()
 		
@@ -177,7 +178,7 @@ class ActiveWishTreeView(WishTreeView):
 			
 			editor.destroy()
 			
-	def on_drag_data_received(self, treeview, context, x, y, selection, info,\
+	def on_drag_data_received(self, treeview, context, x, y, selection, info, \
 							  timestamp):
 		model = treeview.get_model()
 		drop_info = treeview.get_dest_row_at_pos(x, y)
@@ -220,11 +221,11 @@ class GUI:
  
 	def _init_gui(self):
 		self.model = gtk.ListStore(
-		str,		
+		str, 		
 		int,
 		str,
 		str,
-		gobject.TYPE_PYOBJECT, 
+		gobject.TYPE_PYOBJECT,
 		gobject.TYPE_PYOBJECT)
 		self._init_aliases()
 		self.gui.set_title("Ønske hjælper")
@@ -285,9 +286,9 @@ class GUI:
 		write_value = json.dumps(data)
 		
 		chooser = gtk.FileChooserDialog(
-						 title="Gem dine ønsker",action=gtk.FILE_CHOOSER_ACTION_SAVE,
-        		buttons=(gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL,
-						 gtk.STOCK_SAVE,gtk.RESPONSE_OK
+						 title="Gem dine ønsker", action=gtk.FILE_CHOOSER_ACTION_SAVE,
+        		buttons=(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
+						 gtk.STOCK_SAVE, gtk.RESPONSE_OK
 						 ))
 		filter = gtk.FileFilter()
 		filter.set_name("Ønske filer")
@@ -309,8 +310,8 @@ class GUI:
 		chooser = gtk.FileChooserDialog(
 						 title="Hent dine gemte ønsker",
 						 action=gtk.FILE_CHOOSER_ACTION_OPEN,
-        		buttons=(gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL,
-						 gtk.STOCK_OPEN,gtk.RESPONSE_OK
+        		buttons=(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
+						 gtk.STOCK_OPEN, gtk.RESPONSE_OK
 						 ))
 		
 		filter = gtk.FileFilter()
@@ -337,11 +338,16 @@ class GUI:
 			Notes = []
 			Wish_ac = []
 
+			#Instantiates the types and notes 
 			for slags_item in slags:
 				Slags.append(Note(slags_item[0], slags_item[1], slags_item[2]))
-				
-			for notes_item in Notes:
+			
+			for notes_item in notes:
 				Notes.append(Note(notes_item[0], notes_item[1], notes_item[2]))
+
+			self.syncronize_list(self.task_tv.Slags, Slags)
+			self.syncronize_list(self.task_tv.Notes, Notes)
+
 
 			for wish_item in wish_list:
 				
@@ -351,14 +357,20 @@ class GUI:
 				type_title = wish_val.get_type()
 				note_title = wish_val.get_note()
 				 
-				for slags_item in Slags:
+				print "Type:", type_title
+				for slags_item in self.task_tv.Slags:
+					
+					print "Title:", slags_item.get_title()
 					if type_title == slags_item.get_title():
-						wish_val.set_note_val(slags_item)
+						wish_val.set_type_val(slags_item)
 						break
 					
-				for note_item in Notes:
+				print "Note:", note_title
+				for note_item in self.task_tv.Notes:
+					print "Title:", note_item.get_title()
 					if note_title == note_item.get_title():
-						wish_val.set_type_val(note_title)
+					
+						wish_val.set_note_val(note_item)
 						break
 			
 				Wish_ac.append(wish_val.get_row())
@@ -373,9 +385,99 @@ class GUI:
 			
 		chooser.destroy()
 		
-	def print_latex(self, widget):
-		print "do print"
+	def syncronize_list(self, list, load_list):
+		for new_note in load_list:
+			if new_note in list:
+				continue
+			else:
+				title = new_note.get_title()
+				found = False
+				for old_note in list:
+					if old_note.get_title() == title:
+						old_note.set_text(new_note.get_text())
+						found = True
+						break
+				
+				if not found:
+					list.append(new_note)
 
+	def print_latex(self, widget):
+		new_line = "\n"
+		tn = "\\\\" + new_line
+		sep = "\\hline"
+		latex_str = "\\documentclass[letter, 12pt, danish]{article}" + new_line
+		latex_str += "\\usepackage[danish]{babel}" + new_line
+		latex_str += "\\usepackage[latin1]{inputenc}" + new_line
+		latex_str += "\\begin{document}"
+		latex_str += "\\begin{table}" + new_line
+		latex_str += "\\begin{minipage}{5.5cm}" + new_line
+		latex_str += "\\center" + new_line
+		latex_str += "\\begin{tabular}{lll}" + new_line
+		latex_str += sep + new_line
+		latex_str += "Navn & Type & Pris" + tn
+		latex_str += sep + tn
+  		
+		store = self.task_tv.get_model()
+		amount_wishes = len(store)
+		
+		if amount_wishes == 0:
+			return
+		
+		iter = store.get_iter_first()
+		curent_wish = 0
+		wishes = []
+		
+		while iter != None:
+			if curent_wish != 0:
+				iter = store.iter_next(iter)
+				if iter == None:
+					continue
+			wishes.append(store.get(iter, 0, 1, 2, 3, 4, 5))
+	   		print wishes
+	   		curent_wish += 1
+	   
+	   	print "Wishes:", wishes
+	   	
+	   	curent_wish = 0
+	   	for wish in wishes:
+	   		title = wish[0]
+	   		price = str(wish[1])
+	   		type = wish[2]
+	   		
+	   		curent_wish += 1	
+	   		latex_str += title + " & " + type + " & " + price
+	   		if curent_wish < amount_wishes:
+	   			latex_str += tn
+	   		else:
+	   			latex_str += new_line
+	   		
+
+		latex_str += "\\end{tabular}\\par" + new_line
+		latex_str += "\\vspace{-0.75\\skip\\footins}" + new_line
+		latex_str += "\\renewcommand{\\footnoterule}{}"
+		latex_str += "\\end{minipage}" + new_line
+		latex_str += "\\end{table}" + new_line
+		latex_str += "\end{document}"
+	    
+		chooser = gtk.FileChooserDialog(
+			 title="Lav LaTeX fil", action=gtk.FILE_CHOOSER_ACTION_SAVE,
+	    		buttons=(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
+			 gtk.STOCK_SAVE, gtk.RESPONSE_OK
+			 ))
+		filter = gtk.FileFilter()
+		filter.set_name("LaTeX")
+		filter.add_pattern("*.tex")
+	    
+		chooser.add_filter(filter)
+		chooser.set_default_response(gtk.RESPONSE_OK)
+		response = chooser.run()
+	    
+		if response == gtk.RESPONSE_OK:
+			file = open(chooser.get_filename(), "w")
+			file.write(latex_str)
+			file.close()
+		chooser.destroy()
+	        
 	def get_selected_task(self, tv=None):
 		"""Return the 'uid' of the selected task
 
@@ -393,7 +495,7 @@ class GUI:
 		if selection:
 			model, selection_iter = selection.get_selected()
 			if selection_iter:
-				ts  = tview.get_model()
+				ts = tview.get_model()
 		return selection
 	
 	def cancel(self, widget):

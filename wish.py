@@ -39,23 +39,29 @@ class Wish:
 		self.row[GnomeConfig.COL_PRICE] = new_price		
 		self.price = new_price
 
+	#Type
 	def get_type(self):
 		return self.type
-
+	
 	def set_type(self, new_type):
-		self.row[GnomeConfig.COL_TYPE] = new_type
+		self.row[GnomeConfig.COL_TYPE] = new_type	
 		self.type = new_type
 
+	def set_type_val(self, new_type):
+		self.row[GnomeConfig.COL_TYPE_val] = new_type	
+		self.type = new_type
+
+	#Note
 	def get_note(self):
 		return self.note
 
 	def set_note(self, new_note):
 		self.row[GnomeConfig.COL_NOTE] = new_note
 		self.note = new_note
-
-	def set_note_val(self, note_val):
-		self.row[GnomeConfig.COL_NOTE_VAL] = note_val
-		self.note_val = note_val
+		
+	def set_note_val(self, new_note):
+		self.row[GnomeConfig.COL_NOTE_VAL] = new_note
+		self.note = new_note
 		
 	def get_note_val(self):
 		return self.note_val

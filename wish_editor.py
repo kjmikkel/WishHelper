@@ -21,7 +21,7 @@ class WishEditor:
 
 	def set_active_combo(self, combobox, break_value):
 		model = combobox.get_model()
-		for index in range(0, len(model) - 1):
+		for index in range(0, len(model)):
 			combobox.set_active(index)
 			ref = combobox.get_active_iter()
 			val = model.get_value(ref, 0)
@@ -104,7 +104,7 @@ class WishEditor:
 		# Types
 	def new_type(self, widget):
 		store = self.slags.get_model()
-		self.add_single_item(store)		
+		self.add_single_item(store, self.Slags)		
 	
 	def edit_type(self, widget):
 		item = self.get_selected_combo(self.slags)
@@ -116,7 +116,7 @@ class WishEditor:
   		# Notes
   	def new_note(self, widget):
 		store = self.notes.get_model()
-		self.add_single_item(store)
+		self.add_single_item(store, self.Notes)
 
 	def edit_note(self, widget):
 		item = self.get_selected_combo(self.notes)
@@ -143,11 +143,12 @@ class WishEditor:
 		
 		editor.destroy()
 
-	def add_single_item(self, store):
+	def add_single_item(self, store, list):
 		editor = NoteEditor(None)
 		result = editor.run()
 		if result == 1:
 			item = editor.new_note
+			list.append(item)
 			store.append([item.get_title(), item])
 		
 		editor.destroy()

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 class Note():
 
-	def __init__(self, title, text = "", nid = None):
+	def __init__(self, title, text = "", nid = 0):
 		self.title = title
 		self.text = text		
 		self.nid = nid
