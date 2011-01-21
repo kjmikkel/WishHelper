@@ -444,10 +444,10 @@ class GUI:
 			latex_str += "\\begin{document}" + new_line
 			latex_str += "\\maketitle" + new_line
 			latex_str += "\\center" + new_line
-			latex_str += "\\begin{minipage}{8.0cm}" + new_line
-			latex_str += "\\begin{tabular}{lll}" + new_line
+			latex_str += "\\begin{minipage}{15.0cm}" + new_line
+			latex_str += "\\begin{tabular}{llll}" + new_line
 			latex_str += sep + new_line
-			latex_str += "Navn & Type & Pris" + tn
+			latex_str += "Priroritet & Navn & Type & Pris" + tn
 			latex_str += sep + tn
 	  		
 			store = self.task_tv.get_model()
@@ -457,33 +457,42 @@ class GUI:
 				return
 			
 			iter = store.get_iter_first()
-			curent_wish = 0
+			current_wish = 0
 			
 			while iter != None:
-				if curent_wish != 0:
+				if current_wish != 0:
 					iter = store.iter_next(iter)
 					if iter == None:
 						continue
 				wish = store.get(iter, 0, 1, 2, 3, 4, 5)
-		   		title = wish[0]
-		   		price = str(wish[1]) + " kr."
-		   		type = wish[2]
+		   	
+		   		#
+		   		
+		   		title = wish[GnomeConfig.COL_TITLE]
+		   		
+		   		price = str(wish[GnomeConfig.COL_PRICE])
+		   		if price != "0":
+		   			price += " kr."
+		   		else:
+		   			price = "?"
+		   		
+		   		type = wish[GnomeConfig.COL_TYPE]
 		   		
 		   		footnote = ""
-		   		note = wish[5]
+		   		note = wish[GnomeConfig.COL_NOTE_VAL]
 		   		if note.get_title() != "Ingen":
 		   			footnote = "\\footnote{" + note.get_text() + "}"
 		   		
-		   		curent_wish += 1	
-		   		latex_str += title + footnote + " & " + type + " & " + price
-		   		if curent_wish < amount_wishes:
+		   		current_wish += 1	
+		   		latex_str += str(current_wish) + ". & " + title + footnote + " & " + type + " & " + price
+		   		if current_wish < amount_wishes:
 		   			latex_str += tn
 		   		else:
 		   			latex_str += new_line
 		   		
 	
 			latex_str += "\\end{tabular}\\par" + new_line
-			latex_str += "\\vspace{-0.75\\skip\\footins}" + new_line
+			latex_str += "\\vspace{1\\skip\\footins}" + new_line
 			latex_str += "\\renewcommand{\\footnoterule}{}" + new_line
 			latex_str += "\\end{minipage}" + new_line
 			latex_str += "\end{document}"
