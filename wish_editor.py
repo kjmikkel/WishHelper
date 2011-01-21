@@ -104,11 +104,13 @@ class WishEditor:
 		# Types
 	def new_type(self, widget):
 		store = self.slags.get_model()
-		self.add_single_item(store, self.Slags)		
+		item = self.add_single_item(store, self.Slags)		
+		self.set_active_combo(self.slags, item)
 	
 	def edit_type(self, widget):
 		item = self.get_selected_combo(self.slags)
-		self.modify_single_item(item, self.slags)
+		item = self.modify_single_item(item, self.slags)
+		self.set_active_combo(self.slags, item)		
 				
 	def remove_type(self, widget):
 		self.delete_row(self.slags)
@@ -116,11 +118,13 @@ class WishEditor:
   		# Notes
   	def new_note(self, widget):
 		store = self.notes.get_model()
-		self.add_single_item(store, self.Notes)
+		item = self.add_single_item(store, self.Notes)
+		self.set_active_combo(self.notes, item)
 
 	def edit_note(self, widget):
 		item = self.get_selected_combo(self.notes)
-		self.modify_single_item(item, self.notes)
+		item = self.modify_single_item(item, self.notes)
+		self.set_active_combo(self.notes, item)	
 			
 	def remove_note(self, widget):
 		self.delete_row(self.notes)
@@ -142,6 +146,10 @@ class WishEditor:
 					break
 		
 		editor.destroy()
+		if result == 1:
+			return editor.new_note
+		else:
+			return old_item
 
 	def add_single_item(self, store, list):
 		editor = NoteEditor(None)
@@ -152,6 +160,7 @@ class WishEditor:
 			store.append([item.get_title(), item])
 		
 		editor.destroy()
+		return item
 
   	def _init_signal_connections(self):
 		SIGNAL_CONNECTIONS_DIC = {

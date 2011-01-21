@@ -12,6 +12,8 @@ import time
 import sys
 import pango
 import json
+import datetime
+
 
 from wish_editor import WishEditor
 from __init__ import GnomeConfig
@@ -229,6 +231,8 @@ class GUI:
 		gobject.TYPE_PYOBJECT)
 		self._init_aliases()
 		self.gui.set_title("Ønske hjælper")
+		now = datetime.datetime.now()
+		self.year_text.set_value(now.year)
 
 		self.task_tv = ActiveWishTreeView()
 		self.task_tv.set_model(self.model)		
@@ -242,6 +246,10 @@ class GUI:
 
 		self.window = self.builder.get_object("MainWindow")
 		self.wishlist = self.builder.get_object("WishList")
+		
+		self.event_text = self.builder.get_object("event_text")
+		self.year_text	= self.builder.get_object("year_spinner")
+		self.year_check = self.builder.get_object("year_check")
 		
 #		self.gui = gtk.glade.XML(GnomeConfig.main_gui, "MainWindow")
 	#	self.window = self.gui.get_widget("MainWindow")
@@ -282,7 +290,7 @@ class GUI:
 			temp = [wish_temp.get_title(), wish_temp.get_price(), wish_temp.get_type(), wish_temp.get_note()]
 			wish.append(temp)
 		
-		data = [slags, notes, wish]
+		data = [slags, notes, wish, self.event_text.get_text(), self.year_text.get_value(), self.year_check.get_active()]
 		write_value = json.dumps(data)
 		
 		chooser = gtk.FileChooserDialog(
@@ -333,6 +341,10 @@ class GUI:
 			slags = data[0]
 			notes = data[1]
 			wish_list = data[2]
+			self.event_text.set_text(data[3])
+			self.year_text.set_value(data[4])
+			self.year_check.set_active(data[5])
+			
 
 			Slags = []
 			Notes = []
@@ -357,17 +369,17 @@ class GUI:
 				type_title = wish_val.get_type()
 				note_title = wish_val.get_note()
 				 
-				print "Type:", type_title
+	#			print "Type:", type_title
 				for slags_item in self.task_tv.Slags:
 					
-					print "Title:", slags_item.get_title()
+	#				print "Title:", slags_item.get_title()
 					if type_title == slags_item.get_title():
 						wish_val.set_type_val(slags_item)
 						break
 					
-				print "Note:", note_title
+	#			print "Note:", note_title
 				for note_item in self.task_tv.Notes:
-					print "Title:", note_item.get_title()
+	#				print "Title:", note_item.get_title()
 					if note_title == note_item.get_title():
 					
 						wish_val.set_note_val(note_item)
@@ -380,7 +392,7 @@ class GUI:
 			
 			store = self.task_tv.get_model()
 			for wish in Wish_ac:
-				print "adding:", wish
+	#			print "adding:", wish
 				store.append(wish)
 			
 		chooser.destroy()
@@ -402,63 +414,6 @@ class GUI:
 					list.append(new_note)
 
 	def print_latex(self, widget):
-		new_line = "\n"
-		tn = "\\\\" + new_line
-		sep = "\\hline"
-		latex_str = "\\documentclass[letter, 12pt, danish]{article}" + new_line
-		latex_str += "\\usepackage[danish]{babel}" + new_line
-		latex_str += "\\usepackage[latin1]{inputenc}" + new_line
-		latex_str += "\\begin{document}"
-		latex_str += "\\begin{table}" + new_line
-		latex_str += "\\begin{minipage}{5.5cm}" + new_line
-		latex_str += "\\center" + new_line
-		latex_str += "\\begin{tabular}{lll}" + new_line
-		latex_str += sep + new_line
-		latex_str += "Navn & Type & Pris" + tn
-		latex_str += sep + tn
-  		
-		store = self.task_tv.get_model()
-		amount_wishes = len(store)
-		
-		if amount_wishes == 0:
-			return
-		
-		iter = store.get_iter_first()
-		curent_wish = 0
-		wishes = []
-		
-		while iter != None:
-			if curent_wish != 0:
-				iter = store.iter_next(iter)
-				if iter == None:
-					continue
-			wishes.append(store.get(iter, 0, 1, 2, 3, 4, 5))
-	   		print wishes
-	   		curent_wish += 1
-	   
-	   	print "Wishes:", wishes
-	   	
-	   	curent_wish = 0
-	   	for wish in wishes:
-	   		title = wish[0]
-	   		price = str(wish[1])
-	   		type = wish[2]
-	   		
-	   		curent_wish += 1	
-	   		latex_str += title + " & " + type + " & " + price
-	   		if curent_wish < amount_wishes:
-	   			latex_str += tn
-	   		else:
-	   			latex_str += new_line
-	   		
-
-		latex_str += "\\end{tabular}\\par" + new_line
-		latex_str += "\\vspace{-0.75\\skip\\footins}" + new_line
-		latex_str += "\\renewcommand{\\footnoterule}{}"
-		latex_str += "\\end{minipage}" + new_line
-		latex_str += "\\end{table}" + new_line
-		latex_str += "\end{document}"
-	    
 		chooser = gtk.FileChooserDialog(
 			 title="Lav LaTeX fil", action=gtk.FILE_CHOOSER_ACTION_SAVE,
 	    		buttons=(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
@@ -473,7 +428,72 @@ class GUI:
 		response = chooser.run()
 	    
 		if response == gtk.RESPONSE_OK:
+			new_line = "\n"
+			tn = "\\\\" + new_line
+			sep = "\\hline"
+			latex_str = "\\documentclass[letter, 12pt, danish]{article}" + new_line
+			latex_str += "\\usepackage[danish]{babel}" + new_line
+			latex_str += "\\usepackage[utf8]{inputenc}" + new_line
+		
+			# We have to set the title
+			title = self.event_text.get_text()
+			if self.year_check.get_active():
+				title += " for år " + str(int(self.year_text.get_value())) 
+			
+			latex_str += "\\title{" + title + "}" + new_line
+			latex_str += "\\begin{document}" + new_line
+			latex_str += "\\maketitle" + new_line
+			latex_str += "\\center" + new_line
+			latex_str += "\\begin{table}" + new_line
+			latex_str += "\\begin{minipage}{3.0cm}" + new_line
+			latex_str += "\\begin{tabular}{lll}" + new_line
+			latex_str += sep + new_line
+			latex_str += "Navn & Type & Pris" + tn
+			latex_str += sep + tn
+	  		
+			store = self.task_tv.get_model()
+			amount_wishes = len(store)
+			
+			if amount_wishes == 0:
+				return
+			
+			iter = store.get_iter_first()
+			curent_wish = 0
+			
+			while iter != None:
+				if curent_wish != 0:
+					iter = store.iter_next(iter)
+					if iter == None:
+						continue
+				wish = store.get(iter, 0, 1, 2, 3, 4, 5)
+		   		title = wish[0]
+		   		price = str(wish[1]) + " kr."
+		   		type = wish[2]
+		   		
+		   		footnote = ""
+		   		note = wish[5]
+		   		if note.get_title() != "Ingen":
+		   			footnote = "\\footnote{" + note.get_text() + "}"
+		   		
+		   		curent_wish += 1	
+		   		latex_str += title + footnote + " & " + type + " & " + price
+		   		if curent_wish < amount_wishes:
+		   			latex_str += tn
+		   		else:
+		   			latex_str += new_line
+		   		
+	
+			latex_str += "\\end{tabular}\\par" + new_line
+			latex_str += "\\vspace{-2\\skip\\footins}" + new_line
+			latex_str += "\\renewcommand{\\footnoterule}{}" + new_line
+			latex_str += "\\end{minipage}" + new_line
+			latex_str += "\\end{table}" + new_line
+			latex_str += "\end{document}"
+	    
+		
 			file = open(chooser.get_filename(), "w")
+			
+			latex_str = latex_str.encode('utf-8')
 			file.write(latex_str)
 			file.close()
 		chooser.destroy()
