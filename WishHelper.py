@@ -444,8 +444,7 @@ class GUI:
 			latex_str += "\\begin{document}" + new_line
 			latex_str += "\\maketitle" + new_line
 			latex_str += "\\center" + new_line
-			latex_str += "\\begin{table}" + new_line
-			latex_str += "\\begin{minipage}{3.0cm}" + new_line
+			latex_str += "\\begin{minipage}{8.0cm}" + new_line
 			latex_str += "\\begin{tabular}{lll}" + new_line
 			latex_str += sep + new_line
 			latex_str += "Navn & Type & Pris" + tn
@@ -484,10 +483,9 @@ class GUI:
 		   		
 	
 			latex_str += "\\end{tabular}\\par" + new_line
-			latex_str += "\\vspace{-2\\skip\\footins}" + new_line
+			latex_str += "\\vspace{-0.75\\skip\\footins}" + new_line
 			latex_str += "\\renewcommand{\\footnoterule}{}" + new_line
 			latex_str += "\\end{minipage}" + new_line
-			latex_str += "\\end{table}" + new_line
 			latex_str += "\end{document}"
 	    
 		
