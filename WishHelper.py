@@ -13,6 +13,7 @@ import sys
 import pango
 import json
 import datetime
+import os
 
 
 from wish_editor import WishEditor
@@ -251,6 +252,8 @@ class GUI:
 		self.year_text	= self.builder.get_object("year_spinner")
 		self.year_check = self.builder.get_object("year_check")
 		
+		self.latex_radio = self.builder.get_object("latex_radio")
+		
 #		self.gui = gtk.glade.XML(GnomeConfig.main_gui, "MainWindow")
 	#	self.window = self.gui.get_widget("MainWindow")
 	#	self.wishlist = self.gui.get_widget("WishList")
@@ -263,7 +266,7 @@ class GUI:
 
 			"on_save": self.save,
 			"on_load": self.load,
-			"on_print": self.print_latex,
+			"on_print": self.print_to_output_file,
 			"on_cancel": self.cancel,
 			
 			"gtk_main_quit": self.on_close
@@ -413,7 +416,7 @@ class GUI:
 				if not found:
 					list.append(new_note)
 
-	def print_latex(self, widget):
+	def print_to_output_file(self, widget):
 		chooser = gtk.FileChooserDialog(
 			 title="Lav LaTeX fil", action=gtk.FILE_CHOOSER_ACTION_SAVE,
 	    		buttons=(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
@@ -428,7 +431,67 @@ class GUI:
 		response = chooser.run()
 	    
 		if response == gtk.RESPONSE_OK:
-			new_line = "\n"
+			data = ""
+			
+			if self.latex_radio.get_active():
+				data = self.print_latex()
+			else: 
+				data = self.print_text()
+		
+			if data != "":	
+				file = open(chooser.get_filename(), "w")
+			
+				data = data.encode('utf-8')
+				file.write(data)
+				file.close()
+		chooser.destroy()
+
+	def print_text(self):
+		new_line = os.linesep
+		
+		text = ""
+		
+		# We have to set the title
+		title = self.event_text.get_text()
+		if self.year_check.get_active():
+			title += " for år " + str(int(self.year_text.get_value()))
+		
+		text += title + new_line + new_line
+		text += "Følgende ønsker er arrangeret fra mest ønskede til mindst" + new_line	
+	
+		store = self.task_tv.get_model()
+		amount_wishes = len(store)
+			
+		if amount_wishes == 0:
+			return
+			
+		iter = store.get_iter_first()
+		current_wish = 0
+	
+		while iter != None:
+			if current_wish != 0:
+				iter = store.iter_next(iter)
+				if iter == None:
+					continue
+			wish = store.get(iter, 0, 1, 2)
+		  			
+		   	title = wish[GnomeConfig.COL_TITLE]
+		   		
+		   	price = str(wish[GnomeConfig.COL_PRICE])
+		   	if price != "0":
+		   		price += " kr."
+		   	else:
+		   		price = "?"
+		   	
+		   	type = wish[GnomeConfig.COL_TYPE]
+		   				   		
+		   	current_wish += 1	
+		   	text += str(current_wish) + ".\t" + title + "\t" + type + "\t" + price + new_line
+		return text
+
+	def print_latex(self):
+			new_line = os.linesep
+			
 			tn = "\\\\" + new_line
 			sep = "\\hline"
 			latex_str = "\\documentclass[letter, 12pt, danish]{article}" + new_line
@@ -498,12 +561,6 @@ class GUI:
 			latex_str += "\end{document}"
 	    
 		
-			file = open(chooser.get_filename(), "w")
-			
-			latex_str = latex_str.encode('utf-8')
-			file.write(latex_str)
-			file.close()
-		chooser.destroy()
 	        
 	def get_selected_task(self, tv=None):
 		"""Return the 'uid' of the selected task
