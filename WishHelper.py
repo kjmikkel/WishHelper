@@ -418,14 +418,27 @@ class GUI:
 					list.append(new_note)
 
 	def print_to_output_file(self, widget):
+		latex_print = self.latex_radio.get_active()
+		
+		chooser_title = "Lav LaTeX fil"
+		filter_pattern = "*.tex"
+		filter_text = "LaTeX | " + filter_pattern
+		
+		if not latex_print:
+			chooser_title = "Lav tekst fil"
+			filter_pattern = "*.txt"
+			filter_text = "Tekst | " + filter_pattern
+
+
 		chooser = gtk.FileChooserDialog(
-			 title="Lav LaTeX fil", action=gtk.FILE_CHOOSER_ACTION_SAVE,
+			 title= chooser_title, action=gtk.FILE_CHOOSER_ACTION_SAVE,
 	    		buttons=(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
 			 gtk.STOCK_SAVE, gtk.RESPONSE_OK
 			 ))
+
 		filter = gtk.FileFilter()
-		filter.set_name("LaTeX")
-		filter.add_pattern("*.tex")
+		filter.set_name(filter_text)
+		filter.add_pattern(filter_pattern)
 	    
 		chooser.add_filter(filter)
 		chooser.set_default_response(gtk.RESPONSE_OK)
@@ -434,15 +447,23 @@ class GUI:
 		if response == gtk.RESPONSE_OK:
 			data = ""
 			
-			if self.latex_radio.get_active():
+			if latex_print:
 				data = self.print_latex()
 			else: 
 				data = self.print_text()
 		
 			if data != "":	
 				
-				file = open(chooser.get_filename(), "w")
+				filename = chooser.get_filename()
+				file_subfix = ".tex"
+				
+				if not latex_print:
+					file_subfix = ".txt"
+
+				if not re.match(file_subfix + "$", filename):
+					filename += file_subfix
 			
+				file = open(filename, "w")				
 				data = data.encode('utf-8')
 				file.write(data)
 				file.close()
