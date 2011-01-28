@@ -13,7 +13,8 @@ import sys
 import pango
 import json
 import datetime
-import os
+import re
+
 
 
 from wish_editor import WishEditor
@@ -439,6 +440,7 @@ class GUI:
 				data = self.print_text()
 		
 			if data != "":	
+				
 				file = open(chooser.get_filename(), "w")
 			
 				data = data.encode('utf-8')
@@ -497,6 +499,7 @@ class GUI:
 			latex_str = "\\documentclass[letter, 12pt, danish]{article}" + new_line
 			latex_str += "\\usepackage[danish]{babel}" + new_line
 			latex_str += "\\usepackage[utf8]{inputenc}" + new_line
+			latex_str += "\\usepackage{url}" + new_line
 		
 			# We have to set the title
 			title = self.event_text.get_text()
@@ -522,6 +525,8 @@ class GUI:
 			iter = store.get_iter_first()
 			current_wish = 0
 			
+			url = "(http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F])+)*)"
+			
 			while iter != None:
 				if current_wish != 0:
 					iter = store.iter_next(iter)
@@ -540,11 +545,16 @@ class GUI:
 		   			price = "?"
 		   		
 		   		type = wish[GnomeConfig.COL_TYPE]
+
+ 		  		note = wish[GnomeConfig.COL_NOTE_VAL]
 		   		
 		   		footnote = ""
-		   		note = wish[GnomeConfig.COL_NOTE_VAL]
+		   		note_text = note.get_text()
+		   		note_text = re.sub(url, "\url{\\1}", note_text)
+		   		print note_text
+		   		
 		   		if note.get_title() != "Ingen":
-		   			footnote = "\\footnote{" + note.get_text() + "}"
+		   			footnote = "\\footnote{" + note_text + "}"
 		   		
 		   		current_wish += 1	
 		   		latex_str += str(current_wish) + ". & " + title + footnote + " & " + type + " & " + price
@@ -559,6 +569,7 @@ class GUI:
 			latex_str += "\\renewcommand{\\footnoterule}{}" + new_line
 			latex_str += "\\end{minipage}" + new_line
 			latex_str += "\end{document}"
+			return latex_str
 	    
 		
 	        
