@@ -313,7 +313,7 @@ class GUI:
 
 		if response == gtk.RESPONSE_OK:  
 			filename = chooser.get_filename()
-			if not re.match(".json\b$", filename)
+			if not re.match(".json\b$", filename):
 				filename += ".json"
 			file = open(filename, "w")
 			file.write(write_value)
