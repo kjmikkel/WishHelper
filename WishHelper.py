@@ -289,7 +289,7 @@ class GUI:
 			notes.append(note_item.semi_serilize())
 		
 		for wish_item in model:
-			print "wish_item:", wish_item
+		#	print "wish_item:", wish_item
 			wish_temp = Wish(wish_item)
 			temp = [wish_temp.get_title(), wish_temp.get_price(), wish_temp.get_type(), wish_temp.get_note()]
 			wish.append(temp)
@@ -303,7 +303,7 @@ class GUI:
 						 gtk.STOCK_SAVE, gtk.RESPONSE_OK
 						 ))
 		filter = gtk.FileFilter()
-		filter.set_name("Ønske filer")
+		filter.set_name("Ønske filer | *.json")
 		filter.add_pattern("*.json")
 		chooser.add_filter(filter)
 		chooser.set_default_response(gtk.RESPONSE_OK)
@@ -312,7 +312,10 @@ class GUI:
 		response = chooser.run()
 
 		if response == gtk.RESPONSE_OK:  
-			file = open(chooser.get_filename(), "w")
+			filename = chooser.get_filename()
+			if not re.match(".json\b$", filename)
+				filename += ".json"
+			file = open(filename, "w")
 			file.write(write_value)
 			file.close()
 		
@@ -477,7 +480,7 @@ class GUI:
 		# We have to set the title
 		title = self.event_text.get_text()
 		if self.year_check.get_active():
-			title += " for år " + str(int(self.year_text.get_value()))
+			title = "Ønskeseddel til " + title + " for " + str(int(self.year_text.get_value()))
 		
 		text += title + new_line + new_line
 		text += "Følgende ønsker er arrangeret fra mest ønskede til mindst" + new_line	
@@ -514,18 +517,21 @@ class GUI:
 
 	def print_latex(self):
 			new_line = os.linesep
+			path_sep = os.sep
 			
 			tn = "\\\\" + new_line
 			sep = "\\hline"
-			latex_str = "\\documentclass[letter, 12pt, danish]{article}" + new_line
-			latex_str += "\\usepackage[danish]{babel}" + new_line
-			latex_str += "\\usepackage[utf8]{inputenc}" + new_line
-			latex_str += "\\usepackage{url}" + new_line
+			
+			preamble_file = open("tex_files" + path_sep + "tex_header", "r")
+			preamble = preamble_file.read()
+			preamble_file.close()
 		
+			latex_str = preamble
+
 			# We have to set the title
 			title = self.event_text.get_text()
 			if self.year_check.get_active():
-				title += " for år " + str(int(self.year_text.get_value())) 
+				title = "Ønskeseddel til " + title + " for " + str(int(self.year_text.get_value())) 
 			
 			latex_str += "\\title{" + title + "}" + new_line
 			latex_str += "\\begin{document}" + new_line
@@ -572,7 +578,6 @@ class GUI:
 		   		footnote = ""
 		   		note_text = note.get_text()
 		   		note_text = re.sub(url, "\url{\\1}", note_text)
-		   		print note_text
 		   		
 		   		if note.get_title() != "Ingen":
 		   			footnote = "\\footnote{" + note_text + "}"
