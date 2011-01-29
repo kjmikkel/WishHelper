@@ -14,7 +14,7 @@ import pango
 import json
 import datetime
 import re
-
+import textwrap
 
 
 from wish_editor import WishEditor
@@ -207,6 +207,8 @@ class GUI:
 		self._init_signal_connections()	
 		self.current_row = None
 	
+		self.title_length = 38
+
 		# Show the gui		
 		self.window.show()
 		gtk.main()
@@ -239,6 +241,7 @@ class GUI:
 		self.task_tv = ActiveWishTreeView()
 		self.task_tv.set_model(self.model)		
 		self.wishlist.add(self.task_tv)
+		self.latex_radio.set_active(True)
 		
 	def _init_aliases(self):	
 		self.builder = gtk.Builder()
@@ -313,8 +316,9 @@ class GUI:
 
 		if response == gtk.RESPONSE_OK:  
 			filename = chooser.get_filename()
-			if not re.match(".json\b$", filename):
+			if not re.match("[^.]+.json$", filename):
 				filename += ".json"
+
 			file = open(filename, "w")
 			file.write(write_value)
 			file.close()
@@ -398,6 +402,7 @@ class GUI:
 			self.Notes = Notes
 			
 			store = self.task_tv.get_model()
+			store.clear()			
 			for wish in Wish_ac:
 	#			print "adding:", wish
 				store.append(wish)
@@ -463,7 +468,7 @@ class GUI:
 				if not latex_print:
 					file_subfix = ".txt"
 
-				if not re.match(file_subfix + "$", filename):
+				if not re.match("[^.]+" + file_subfix + "$", filename):
 					filename += file_subfix
 			
 				file = open(filename, "w")				
@@ -483,7 +488,7 @@ class GUI:
 			title = "Ønskeseddel til " + title + " for " + str(int(self.year_text.get_value()))
 		
 		text += title + new_line + new_line
-		text += "Følgende ønsker er arrangeret fra mest ønskede til mindst" + new_line	
+		text += "Følgende ønsker er arrangeret fra mest ønskede til mindst" + new_line + new_line
 	
 		store = self.task_tv.get_model()
 		amount_wishes = len(store)
@@ -564,7 +569,8 @@ class GUI:
 		   		#
 		   		
 		   		title = wish[GnomeConfig.COL_TITLE]
-		   		
+				title_list = textwrap.wrap(title, self.title_length)		   		
+
 		   		price = str(wish[GnomeConfig.COL_PRICE])
 		   		if price != "0":
 		   			price += " kr."
@@ -583,8 +589,17 @@ class GUI:
 		   			footnote = "\\footnote{" + note_text + "}"
 		   		
 		   		current_wish += 1	
-		   		latex_str += str(current_wish) + ". & " + title + footnote + " & " + type + " & " + price
-		   		if current_wish < amount_wishes:
+		   		latex_str += str(current_wish) + ". & " + title_list[0] + footnote + " & " + type + " & " + price
+
+				index = 1
+				title_list_length = len(title_list)
+				if title_list_length > 1:
+					while index < title_list_length:
+						latex_str += tn
+						latex_str += " & " + title_list[index] + " & & " 
+						index += 1
+		   		
+				if current_wish < amount_wishes:
 		   			latex_str += tn
 		   		else:
 		   			latex_str += new_line

@@ -105,7 +105,8 @@ class WishEditor:
 	def new_type(self, widget):
 		store = self.slags.get_model()
 		item = self.add_single_item(store, self.Slags)		
-		self.set_active_combo(self.slags, item)
+		if item != None:		
+			self.set_active_combo(self.slags, item)
 	
 	def edit_type(self, widget):
 		item = self.get_selected_combo(self.slags)
@@ -119,7 +120,8 @@ class WishEditor:
   	def new_note(self, widget):
 		store = self.notes.get_model()
 		item = self.add_single_item(store, self.Notes)
-		self.set_active_combo(self.notes, item)
+		if item != None:		
+			self.set_active_combo(self.notes, item)
 
 	def edit_note(self, widget):
 		item = self.get_selected_combo(self.notes)
@@ -154,6 +156,7 @@ class WishEditor:
 	def add_single_item(self, store, list):
 		editor = NoteEditor(None)
 		result = editor.run()
+		item = None		
 		if result == 1:
 			item = editor.new_note
 			list.append(item)
