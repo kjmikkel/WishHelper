@@ -326,7 +326,7 @@ class GUI:
       file.write(write_value)
       file.close()
 
-      self.load_path = os.path.dirname(file_name)
+      self.load_path = os.path.dirname(filename)
 
     chooser.destroy()
     
