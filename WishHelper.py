@@ -209,7 +209,12 @@ class GUI:
     self.current_row = None
   
     self.title_length = 38
-    self.load_path = None
+    self.load_path_file = "load_path.ini"
+    if os.path.exists(self.load_path_file):
+      File = open(self.load_path_file, 'r')
+      self.load_path = File.read()
+    else: 
+      self.load_path = None
 
     # Show the gui    
     self.window.show()
@@ -448,7 +453,6 @@ class GUI:
       filter_pattern = "*.txt"
       filter_text = "Tekst | " + filter_pattern
 
-
     chooser = gtk.FileChooserDialog(
        title= chooser_title, action=gtk.FILE_CHOOSER_ACTION_SAVE,
           buttons=(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
@@ -615,7 +619,6 @@ class GUI:
         else:
           latex_str += new_line
            
-  
       latex_str += "\\end{tabular}\\par" + new_line
       latex_str += "\\vspace{1\\skip\\footins}" + new_line
       latex_str += "\\renewcommand{\\footnoterule}{}" + new_line
@@ -645,7 +648,12 @@ class GUI:
         ts = tview.get_model()
     return selection
   
-  def cancel(self, widget):
+  def cancel(self, widget):    
+    if self.load_path != None:
+      file = open(self.load_path_file, "w")
+      file.write(self.load_path)
+      file.close()
+    
     self.window.destroy()
 
 try:
