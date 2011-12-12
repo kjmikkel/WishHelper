@@ -41,12 +41,12 @@ class WishTreeView(gtk.TreeView):
     self.expand_all()
     self.get_model().foreach(self._refresh_func, collapsed_rows)
 
-  def _refresh_func(self, model, path, iter, collapsed_rows=None):
+  def _refresh_func(self, model, path, cur_iter, collapsed_rows=None):
     if collapsed_rows:
-      tid = model.get_value(iter, COL_TID)
+      tid = model.get_value(cur_iter, COL_TID)
       if tid in collapsed_rows:
         self.collapse_row(path)
-    model.row_changed(path, iter)
+    model.row_changed(path, cur_iter)
 
 class ActiveWishTreeView(WishTreeView):
   """TreeView for display of a list of wishes. Handles DnD primitives too."""
@@ -123,8 +123,8 @@ class ActiveWishTreeView(WishTreeView):
     treeselection = treeview.get_selection()
     destination"""
     treeselection = treeview.get_selection()
-    model, iter = treeselection.get_selected()
-    iter_str = model.get_string_from_iter(iter)
+    model, cur_iter = treeselection.get_selected()
+    iter_str = model.get_string_from_iter(cur_iter)
     selection.set('gtg/task-iter-str', 0, iter_str)
     return
 
@@ -468,7 +468,6 @@ class GUI:
     response = chooser.run()
       
     if response == gtk.RESPONSE_OK:
-      data = ""
       
       if latex_print:
         data = self.print_latex()
@@ -478,9 +477,10 @@ class GUI:
       if data != "":  
         
         filename = chooser.get_filename()
-        file_subfix = ".tex"
-        
-        if not latex_print:
+    
+        if latex_print:
+          file_subfix = ".tex"
+        else:
           file_subfix = ".txt"
 
         if not re.match("[^.]+" + file_subfix + "$", filename):
@@ -494,7 +494,6 @@ class GUI:
 
   def print_text(self):
     new_line = os.linesep
-    
     text = ""
     
     # We have to set the title
@@ -510,31 +509,31 @@ class GUI:
       
     if amount_wishes == 0:
       return
-      
-    iter = store.get_iter_first()
+    
+    cur_iter = store.get_iter_first()
     current_wish = 0
   
-    while iter != None:
+    while cur_iter != None:
       if current_wish != 0:
-        iter = store.iter_next(iter)
-        if iter == None:
+        cur_iter = store.iter_next(cur_iter)
+        if cur_iter == None:
           continue
       
-        wish = store.get(iter, 0, 1, 2)
-            
-        title = wish[GnomeConfig.COL_TITLE]
-           
-        price = str(wish[GnomeConfig.COL_PRICE])
+      wish = store.get(cur_iter, 0, 1, 2)
+      title = wish[GnomeConfig.COL_TITLE]
+   
+      price = str(wish[GnomeConfig.COL_PRICE])
         
-        if price != "0":
-           price += " kr."
-        else:
-          price = "?"
+      if price != "0":
+         price += " kr."
+      else:
+        price = "?"
          
-        type = wish[GnomeConfig.COL_TYPE]
+      slags = wish[GnomeConfig.COL_TYPE]
                       
-        current_wish += 1  
-        text += str(current_wish) + ".\t" + title + "\t" + type + "\t" + price + new_line
+      current_wish += 1  
+      text += str(current_wish) + ".\t" + title + "\t\t\t" + slags + "\t" + price + new_line
+        
     return text
 
   def print_latex(self):
@@ -571,17 +570,18 @@ class GUI:
       if amount_wishes == 0:
         return
       
-      iter = store.get_iter_first()
+      cur_iter= store.get_iter_first()
       current_wish = 0
       
       url = "(http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F])+)*)"
       
-      while iter != None:
+      while cur_iter != None:
         if current_wish != 0:
-          iter = store.iter_next(iter)
-          if iter == None:
+          cur_iter = store.iter_next(cur_iter)  
+          if cur_iter == None:
             continue
-        wish = store.get(iter, 0, 1, 2, 3, 4, 5)
+              
+        wish = store.get(cur_iter, 0, 1, 2, 3, 4, 5)
            
         title = wish[GnomeConfig.COL_TITLE]
         title_list = textwrap.wrap(title, self.title_length)           
@@ -609,6 +609,7 @@ class GUI:
         index = 1
         title_list_length = len(title_list)
         if title_list_length > 1:
+          
           while index < title_list_length:
             latex_str += tn
             latex_str += " & " + title_list[index] + " & & " 
@@ -625,9 +626,7 @@ class GUI:
       latex_str += "\\end{minipage}" + new_line
       latex_str += "\end{document}"
       return latex_str
-      
-    
-          
+        
   def get_selected_task(self, tv=None):
     """Return the 'uid' of the selected task
 
