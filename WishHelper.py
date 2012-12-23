@@ -210,22 +210,25 @@ class GUI:
     self.current_row = None
   
     self.title_length = 38
-    self.load_path_file = "load_path.ini"
+    self.ini_file = "config.ini"
     # We give the default values for the variables
     self.load_path = None
     self.print_path = None
-    if os.path.exists(self.load_path_file):
-      config = ConfigObj(self.load_path_file)
+    if os.path.exists(self.ini_file):
+      config = ConfigObj(self.ini_file)
       try:
         self.load_path = config['load_path']
+        if not os.path.exists(self.load_path):
+          self.load_path = None
       except KeyError:
         # Since we have already set the load and print path to None, there is no need to do anything in case of an exeception
         pass
       try:
         self.print_path = config['print_path']
+        if not os.path.exists(self.print_path):
+          self.print_path = None
       except KeyError:
         pass
-
     # Show the gui    
     self.window.show()
     gtk.main()
@@ -487,17 +490,13 @@ class GUI:
       
       if latex_print:
         data = self.print_latex()
+        file_subfix = ".tex"
       else: 
         data = self.print_text()
-    
+        file_subfix = ".txt"
+
       if data != "":  
-        
         filename = chooser.get_filename()
-    
-        if latex_print:
-          file_subfix = ".tex"
-        else:
-          file_subfix = ".txt"
 
         if not re.match("[^.]+" + file_subfix + "$", filename):
           filename += file_subfix
@@ -506,6 +505,9 @@ class GUI:
         data = data.encode('utf-8')
         file.write(data)
         file.close()
+        # If we reach this point, then we are sure we have a valid filename, and we get and store the path
+        self.print_path = os.path.dirname(filename)
+        
     chooser.destroy()
 
   def print_text(self):
@@ -665,7 +667,7 @@ class GUI:
     return selection
   
   def cancel(self, widget):    
-    config = ConfigObj(self.load_path_file)
+    config = ConfigObj(self.ini_file)
     if self.load_path:
       config['load_path'] = self.load_path
       config.write()
