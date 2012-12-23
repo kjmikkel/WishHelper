@@ -63,7 +63,8 @@ class WishEditor:
     self.builder.add_from_file(GnomeConfig.helper_gui)
     self._init_alias()
     self.editor.set_title("Lav et Ønske")
-    
+    self.editor.set_icon_from_file("images/wishlist_add.png")
+
     self.Slags = Slags
     self.Notes = Notes    
         

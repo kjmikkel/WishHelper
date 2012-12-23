@@ -15,7 +15,8 @@ import json
 import datetime
 import re
 import textwrap
-
+from configobj import ConfigObj
+import exceptions
 
 from wish_editor import WishEditor
 from __init__ import GnomeConfig
@@ -210,11 +211,20 @@ class GUI:
   
     self.title_length = 38
     self.load_path_file = "load_path.ini"
+    # We give the default values for the variables
+    self.load_path = None
+    self.print_path = None
     if os.path.exists(self.load_path_file):
-      File = open(self.load_path_file, 'r')
-      self.load_path = File.read()
-    else: 
-      self.load_path = None
+      config = ConfigObj(self.load_path_file)
+      try:
+        self.load_path = config['load_path']
+      except KeyError:
+        # Since we have already set the load and print path to None, there is no need to do anything in case of an exeception
+        pass
+      try:
+        self.print_path = config['print_path']
+      except KeyError:
+        pass
 
     # Show the gui    
     self.window.show()
@@ -242,6 +252,8 @@ class GUI:
     gobject.TYPE_PYOBJECT)
     self._init_aliases()
     self.gui.set_title("Ønske hjælper")
+            # Add the icon for the program
+    self.gui.set_icon_from_file("images/wishlist.png")
     now = datetime.datetime.now()
     self.year_text.set_value(now.year)
 
@@ -249,7 +261,7 @@ class GUI:
     self.task_tv.set_model(self.model)    
     self.wishlist.add(self.task_tv)
     self.latex_radio.set_active(True)
-    
+
   def _init_aliases(self):  
     self.builder = gtk.Builder()
     self.builder.add_from_file(GnomeConfig.main_gui)
@@ -265,7 +277,7 @@ class GUI:
     
     self.latex_radio = self.builder.get_object("latex_radio")
     
-#    self.gui = gtk.glade.XML(GnomeConfig.main_gui, "MainWindow")
+  #  self.gui = gtk.glade.XML(GnomeConfig.main_gui, "MainWindow")
   #  self.window = self.gui.get_widget("MainWindow")
   #  self.wishlist = self.gui.get_widget("WishList")
   
@@ -317,7 +329,7 @@ class GUI:
     chooser.add_filter(filter)
     chooser.set_default_response(gtk.RESPONSE_OK)
 
-    if self.load_path != None:
+    if self.load_path:
       chooser.set_current_folder(self.load_path)
 
     response = chooser.run()    
@@ -349,7 +361,7 @@ class GUI:
     chooser.add_filter(filter)
     chooser.set_default_response(gtk.RESPONSE_OK)
     
-    if self.load_path != None:
+    if self.load_path:
       chooser.set_current_folder(self.load_path)
     
     response = chooser.run()
@@ -465,6 +477,10 @@ class GUI:
       
     chooser.add_filter(filter)
     chooser.set_default_response(gtk.RESPONSE_OK)
+    
+    if self.print_path:
+      chooser.set_current_folder(self.print_path)
+    
     response = chooser.run()
       
     if response == gtk.RESPONSE_OK:
@@ -574,7 +590,7 @@ class GUI:
       current_wish = 0
       
       url = "(http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F])+)*)"
-      
+
       while cur_iter != None:
         if current_wish != 0:
           cur_iter = store.iter_next(cur_iter)  
@@ -599,6 +615,7 @@ class GUI:
         footnote = ""
         note_text = note.get_text()
         note_text = re.sub(url, "\url{\\1}", note_text)
+        note_text = re.sub("%", "\\%", note_text)
            
         if note.get_title() != "Ingen":
           footnote = "\\footnote{" + note_text + "}"
@@ -648,10 +665,13 @@ class GUI:
     return selection
   
   def cancel(self, widget):    
-    if self.load_path != None:
-      file = open(self.load_path_file, "w")
-      file.write(self.load_path)
-      file.close()
+    config = ConfigObj(self.load_path_file)
+    if self.load_path:
+      config['load_path'] = self.load_path
+      config.write()
+    if self.print_path:
+      config['print_path'] = self.print_path
+      config.write()
     
     self.window.destroy()
 
