@@ -10,6 +10,7 @@ class Wish:
     #  print "list"
       row = data
       self.row = row
+      self.num = row[GnomeConfig.COL_NUMBER]
       self.title = row[GnomeConfig.COL_TITLE]
       self.price = row[GnomeConfig.COL_PRICE]
       self.type = row[GnomeConfig.COL_TYPE]
@@ -19,11 +20,12 @@ class Wish:
     else:
     #  print "not list"
       data = data[0]
-      self.row = range(0, 6)
+      self.row = range(0, 7)
       self.set_title(data[0])
       self.set_price(data[1])
       self.set_type(data[2])
       self.set_note(data[3])
+      self.set_number(data[4])
       
   def get_title(self):
     return self.title
@@ -38,6 +40,13 @@ class Wish:
   def set_price(self, new_price):
     self.row[GnomeConfig.COL_PRICE] = new_price    
     self.price = new_price
+
+  def get_number(self):
+    return self.num
+
+  def set_number(self, new_number):
+    self.row[GnomeConfig.COL_NUMBER] = new_number
+    self.num = new_number
 
   #Type
   def get_type(self):
@@ -58,7 +67,7 @@ class Wish:
   def set_note(self, new_note):
     self.row[GnomeConfig.COL_NOTE] = new_note
     self.note = new_note
-    
+
   def set_note_val(self, new_note):
     self.row[GnomeConfig.COL_NOTE_VAL] = new_note
     self.note = new_note

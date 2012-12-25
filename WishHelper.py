@@ -103,7 +103,15 @@ class ActiveWishTreeView(WishTreeView):
 
   def _init_tree_view(self):
     # Columns
-#    num_col = self.create_column("Nummer", GnomeConfig.COL_TITLE)
+    num_col = self.create_column("#", GnomeConfig.COL_NUMBER)
+    size = 35
+    num_col.set_resizable(False)
+    num_col.set_clickable(True)
+    num_col.set_sizing(gtk.TREE_VIEW_COLUMN_FIXED)
+    num_col.set_expand(False)
+    num_col.set_fixed_width(size)
+    num_col.set_max_width(size)
+    
     name_col = self.create_column("Navn", GnomeConfig.COL_TITLE)
     price_col = self.create_column("Pris", GnomeConfig.COL_PRICE)
     type_col = self.create_column("Type", GnomeConfig.COL_TYPE)
@@ -127,11 +135,10 @@ class ActiveWishTreeView(WishTreeView):
     treeselection = treeview.get_selection()
     model, cur_iter = treeselection.get_selected()
     iter_str = model.get_string_from_iter(cur_iter)
-    selection.set('gtg/task-iter-str', 0, iter_str)
+    selection.set('gtg/task-iter-str', 0, iter_str)     
     return
 
   def delete_row(self):
-    #odel = self.get_model()
     selection = self.get_selection()
     model, selected = selection.get_selected()
     if selected:
@@ -143,6 +150,12 @@ class ActiveWishTreeView(WishTreeView):
       else:
         selection.select_path(row - 1)
       model.remove(selected)
+    
+    row_number = 1
+    for row in self.get_model():
+      row[0] = row_number
+      row_number += 1
+      
 
   def insert_row(self):
     editor = WishEditor([], self.Slags, self.Notes)
@@ -157,7 +170,8 @@ class ActiveWishTreeView(WishTreeView):
       
       if len(name) > 0 and price >= 0:
         liststore = self.get_model()
-        liststore.append([name, price, slags.title, note.title, slags, note])
+        new_number = len(liststore) + 1
+        liststore.append([new_number, name, price, slags.title, note.title, slags, note])
       
       self.Slags = editor.Slags
       self.Notes = editor.Notes
@@ -168,7 +182,7 @@ class ActiveWishTreeView(WishTreeView):
     model = self.get_model()
     self.active = self.get_selection().get_selected()[1]
     if self.active != None:
-      row = model.get(self.active, 0, 1, 4, 5)
+      row = model.get(self.active, 1, 2, 5, 6)
       print row
       editor = WishEditor(row, self.Slags, self.Notes)
       result = editor.run()
@@ -182,8 +196,10 @@ class ActiveWishTreeView(WishTreeView):
         slags = editor.get_selected_combo(editor.slags)
         note = editor.get_selected_combo(editor.notes)
       
+        number = model.get(self.active, 0)[0]
+        
         if len(name) > 0 and price >= 0:
-          listStore.insert_after(self.active, [name, price, slags.title, note.title, slags, note])
+          listStore.insert_after(self.active, [number, name, price, slags.title, note.title, slags, note])
           listStore.remove(self.active)
           liststore = self.get_model()
       
@@ -208,6 +224,12 @@ class ActiveWishTreeView(WishTreeView):
     else:
         model.move_before(drag_iter, None)
     
+    # Update row numbers
+    row_number = 1
+    for row in self.get_model():
+      row[0] = row_number
+      row_number += 1
+
     self.emit_stop_by_name('drag_data_received')
   
 class GUI:
@@ -255,6 +277,7 @@ class GUI:
  
   def _init_gui(self):
     self.model = gtk.ListStore(
+    int,
     str,     
     int,
     str,
@@ -263,7 +286,7 @@ class GUI:
     gobject.TYPE_PYOBJECT)
     self._init_aliases()
     self.gui.set_title("Ønske hjælper")
-            # Add the icon for the program
+    # Add the icon for the program
     self.gui.set_icon_from_file("images/wishlist.png")
     now = datetime.datetime.now()
     self.year_text.set_value(now.year)
@@ -321,7 +344,6 @@ class GUI:
       notes.append(note_item.semi_serilize())
     
     for wish_item in model:
-    #  print "wish_item:", wish_item
       wish_temp = Wish(wish_item)
       temp = [wish_temp.get_title(), wish_temp.get_price(), wish_temp.get_type(), wish_temp.get_note()]
       wish.append(temp)
@@ -395,7 +417,6 @@ class GUI:
       self.year_text.set_value(data[4])
       self.year_check.set_active(data[5])
       
-
       Slags = []
       Notes = []
       Wish_ac = []
@@ -410,40 +431,41 @@ class GUI:
       self.syncronize_list(self.task_tv.Slags, Slags)
       self.syncronize_list(self.task_tv.Notes, Notes)
 
-
+      wish_num = 1
       for wish_item in wish_list:
         
+        wish_item.append(wish_num)
         input = (wish_item, 0)
         wish_val = Wish(input)
-        
+        wish_num +=1
+
         type_title = wish_val.get_type()
         note_title = wish_val.get_note()
          
-  #      print "Type:", type_title
-        for slags_item in self.task_tv.Slags:
-          
-  #        print "Title:", slags_item.get_title()
+  #     print "Type:", type_title
+        for slags_item in self.task_tv.Slags:     
+  #       print "Title:", slags_item.get_title()
           if type_title == slags_item.get_title():
             wish_val.set_type_val(slags_item)
             break
           
-  #      print "Note:", note_title
+  #     print "Note:", note_title
         for note_item in self.task_tv.Notes:
-  #        print "Title:", note_item.get_title()
+  #       print "Title:", note_item.get_title()
           if note_title == note_item.get_title():
-          
             wish_val.set_note_val(note_item)
             break
-      
-        Wish_ac.append(wish_val.get_row())
-              
+        
+        final_wish = wish_val.get_row()
+        Wish_ac.append(final_wish)
+        
+      print Wish_ac
       self.Slags = Slags
       self.Notes = Notes
       
       store = self.task_tv.get_model()
       store.clear()      
       for wish in Wish_ac:
-  #      print "adding:", wish
         store.append(wish)
       
     chooser.destroy()
@@ -607,7 +629,7 @@ class GUI:
           if cur_iter == None:
             continue
               
-        wish = store.get(cur_iter, 0, 1, 2, 3, 4, 5)
+        wish = store.get(cur_iter, 0, 1, 2, 3, 4, 5, 6)
            
         title = wish[GnomeConfig.COL_TITLE]
         title_list = textwrap.wrap(title, self.title_length)           
@@ -684,6 +706,7 @@ class GUI:
       config.write()
     
     self.window.destroy()
+    sys.exit(0)
 
 try:
   sys.exit(GUI())

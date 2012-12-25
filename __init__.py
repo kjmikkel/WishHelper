@@ -12,14 +12,15 @@ class GnomeConfig:
   main_gui    = os.path.join(current_rep, "WishHelperMain.glade")
   helper_gui  = os.path.join(current_rep, "WishHelperEditor.glade")
   edit_gui    = os.path.join(current_rep, "WishHelperEdit.glade")
-  
-  COL_TITLE     = 0
-  COL_PRICE     = 1
-  COL_TYPE      = 2
-  COL_NOTE      = 3
-  COL_TYPE_VAL  = 4
-  COL_NOTE_VAL  = 5
-    
+
+  COL_NUMBER    = 0
+  COL_TITLE     = 1
+  COL_PRICE     = 2
+  COL_TYPE      = 3
+  COL_NOTE      = 4
+  COL_TYPE_VAL  = 5
+  COL_NOTE_VAL  = 6
+
   start_media_txt = ["Bog", "Computerspil", "DVD", "Køkenudstyr", "Værktøj"]
   start_media = []  
 
