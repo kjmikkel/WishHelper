@@ -54,7 +54,7 @@ class ActiveWishTreeView(WishTreeView):
 
   DND_TARGETS = [
     ('gtg/task-iter-str', gtk.TARGET_SAME_WIDGET, 0)
-  ]
+    ]
 
   def __init__(self):
     self.Notes = GnomeConfig.start_notes
@@ -103,6 +103,7 @@ class ActiveWishTreeView(WishTreeView):
 
   def _init_tree_view(self):
     # Columns
+#    num_col = self.create_column("Nummer", GnomeConfig.COL_TITLE)
     name_col = self.create_column("Navn", GnomeConfig.COL_TITLE)
     price_col = self.create_column("Pris", GnomeConfig.COL_PRICE)
     type_col = self.create_column("Type", GnomeConfig.COL_TYPE)
@@ -130,11 +131,18 @@ class ActiveWishTreeView(WishTreeView):
     return
 
   def delete_row(self):
-    model = self.get_model()
-    selection = self.get_selection().get_selected()
-    selected_row = selection[1]    
-    if selected_row != None:  
-        model.remove(selected_row)
+    #odel = self.get_model()
+    selection = self.get_selection()
+    model, selected = selection.get_selected()
+    if selected:
+      row_num = len(model)
+      path = model.get_path(selected)
+      row = path[0]
+      if row_num > 1 and row == 0:
+        selection.select_path(1)
+      else:
+        selection.select_path(row - 1)
+      model.remove(selected)
 
   def insert_row(self):
     editor = WishEditor([], self.Slags, self.Notes)
