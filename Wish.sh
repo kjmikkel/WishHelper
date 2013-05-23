@@ -15,7 +15,4 @@
 #   You should have received a copy of the GNU General Public License
 #   along with The Lonely Runner Verifier.  If not, see <http://www.gnu.org/licenses/>.
 
-class Enumerate(object):
-  def __init__(self, names):
-    for number, name in enumerate(names.split()):
-      setattr(self, name, number)
+python WishHelper.py
