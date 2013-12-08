@@ -625,7 +625,7 @@ class GUI:
       latex_str += "\\begin{minipage}{15.0cm}" + new_line
       latex_str += "\\begin{tabular}{llll}" + new_line
       latex_str += sep + new_line
-      latex_str += "Priroritet & Navn & Type & Pris" + tn
+      latex_str += "Prioritet & Navn & Type & Pris" + tn
       latex_str += sep + tn
         
       store = self.task_tv.get_model()
