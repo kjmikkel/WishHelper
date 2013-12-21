@@ -255,7 +255,6 @@
                     <property name="xalign">0.5</property>
                     <property name="active">True</property>
                     <property name="draw_indicator">True</property>
-                    <property name="group">text_radio</property>
                   </object>
                   <packing>
                     <property name="expand">True</property>
