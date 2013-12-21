@@ -37,7 +37,6 @@ import exceptions
 from wish_editor import WishEditor
 from __init__ import GnomeConfig
 from wish import Wish
-from note import Note
 
 class WishTreeView(gtk.TreeView):
   """TreeView for display of a list of task. Handles DnD primitives too."""
@@ -72,10 +71,7 @@ class ActiveWishTreeView(WishTreeView):
     ('gtg/task-iter-str', gtk.TARGET_SAME_WIDGET, 0)
     ]
 
-  def __init__(self):
-    self.Notes = GnomeConfig.start_notes
-    self.Slags = GnomeConfig.start_media
-    
+  def __init__(self):  
     WishTreeView.__init__(self)
     self._init_tree_view()
 
@@ -120,11 +116,12 @@ class ActiveWishTreeView(WishTreeView):
   def _init_tree_view(self):
     # Columns
     num_col = self.create_column("#", GnomeConfig.COL_NUMBER)
-    size = 35
     num_col.set_resizable(False)
     num_col.set_clickable(True)
     num_col.set_sizing(gtk.TREE_VIEW_COLUMN_FIXED)
     num_col.set_expand(False)
+    
+    size = 35
     num_col.set_fixed_width(size)
     num_col.set_max_width(size)
     
@@ -174,23 +171,21 @@ class ActiveWishTreeView(WishTreeView):
       
 
   def insert_row(self):
-    editor = WishEditor([], self.Slags, self.Notes)
+    editor = WishEditor([])
     result = editor.run()
     
     if result == 1:
       name = editor.name.get_text()
       price = editor.price.get_value()
-      
-      slags = editor.get_selected_combo(editor.slags)
-      note = editor.get_selected_combo(editor.notes)
-      
+
       if len(name) > 0 and price >= 0:
         liststore = self.get_model()
         new_number = len(liststore) + 1
-        liststore.append([new_number, name, price, slags.title, note.title, slags, note])
-      
-      self.Slags = editor.Slags
-      self.Notes = editor.Notes
+
+        slags = editor.slags.get_text()
+        note = editor.note.get_text()
+        
+        liststore.append([new_number, name, price, slags, note])
     
     editor.destroy()
     
@@ -198,9 +193,8 @@ class ActiveWishTreeView(WishTreeView):
     model = self.get_model()
     self.active = self.get_selection().get_selected()[1]
     if self.active != None:
-      row = model.get(self.active, 1, 2, 5, 6)
-      print row
-      editor = WishEditor(row, self.Slags, self.Notes)
+      row = model.get(self.active, 1, 2, 3, 4)
+      editor = WishEditor(row)
       result = editor.run()
     
       if result == 1:
@@ -209,18 +203,16 @@ class ActiveWishTreeView(WishTreeView):
         name = editor.name.get_text()
         price = editor.price.get_value()
       
-        slags = editor.get_selected_combo(editor.slags)
-        note = editor.get_selected_combo(editor.notes)
-      
         number = model.get(self.active, 0)[0]
         
         if len(name) > 0 and price >= 0:
-          listStore.insert_after(self.active, [number, name, price, slags.title, note.title, slags, note])
+          
+          slags = editor.slags.get_text()
+          note = editor.note.get_text()
+
+          listStore.insert_after(self.active, [number, name, price, slags, note])
           listStore.remove(self.active)
           liststore = self.get_model()
-      
-      self.Slags = editor.Slags
-      self.Notes = editor.Notes
       
       editor.destroy()
       
@@ -292,16 +284,18 @@ class GUI:
     print "close"
  
   def _init_gui(self):
+
+    # Set the model
     self.model = gtk.ListStore(
     int,
     str,     
     int,
     str,
-    str,
-    gobject.TYPE_PYOBJECT,
-    gobject.TYPE_PYOBJECT)
+    str)
+    
     self._init_aliases()
     self.gui.set_title("Ønske hjælper")
+    
     # Add the icon for the program
     self.gui.set_icon_from_file("images/wishlist.png")
     now = datetime.datetime.now()
@@ -326,10 +320,6 @@ class GUI:
     self.year_check = self.builder.get_object("year_check")
     
     self.latex_radio = self.builder.get_object("latex_radio")
-    
-  #  self.gui = gtk.glade.XML(GnomeConfig.main_gui, "MainWindow")
-  #  self.window = self.gui.get_widget("MainWindow")
-  #  self.wishlist = self.gui.get_widget("WishList")
   
   def _init_signal_connections(self):
     SIGNAL_CONNECTIONS_DIC = {
@@ -349,22 +339,17 @@ class GUI:
   def save(self, widget):
     model = self.task_tv.get_model()
     
-    slags = []
-    notes = []
-    wish = []
-    
-    for slags_item in self.task_tv.Slags:
-      slags.append(slags_item.semi_serilize())
-    
-    for note_item in self.task_tv.Notes:
-      notes.append(note_item.semi_serilize())
-    
+    # Get the wishes
+    wishes = []
     for wish_item in model:
       wish_temp = Wish(wish_item)
-      temp = [wish_temp.get_title(), wish_temp.get_price(), wish_temp.get_type(), wish_temp.get_note()]
-      wish.append(temp)
+      wishes.append(wish_temp.list_rep())
     
-    data = [slags, notes, wish, self.event_text.get_text(), self.year_text.get_value(), self.year_check.get_active()]
+    title = self.event_text.get_text()
+    year = self.year_text.get_value()
+    year_check = self.year_check.get_active()
+
+    data = [wishes, title, year, year_check]
     write_value = json.dumps(data)
     
     chooser = gtk.FileChooserDialog(
@@ -426,93 +411,30 @@ class GUI:
       
       data = json.loads(file_data)
       
-      slags = data[0]
-      notes = data[1]
-      wish_list = data[2]
-      self.event_text.set_text(data[3])
-      self.year_text.set_value(data[4])
-      self.year_check.set_active(data[5])
-      
-      Slags = []
-      Notes = []
-      Wish_ac = []
-
-      #Instantiates the types and notes 
-      for slags_item in slags:
-        Slags.append(Note(slags_item[0], slags_item[1], slags_item[2]))
-      
-      for notes_item in notes:
-        Notes.append(Note(notes_item[0], notes_item[1], notes_item[2]))
-
-      self.syncronize_list(self.task_tv.Slags, Slags)
-      self.syncronize_list(self.task_tv.Notes, Notes)
-
-      wish_num = 1
-      for wish_item in wish_list:
-        
-        wish_item.append(wish_num)
-        input = (wish_item, 0)
-        wish_val = Wish(input)
-        wish_num +=1
-
-        type_title = wish_val.get_type()
-        note_title = wish_val.get_note()
-         
-  #     print "Type:", type_title
-        for slags_item in self.task_tv.Slags:     
-  #       print "Title:", slags_item.get_title()
-          if type_title == slags_item.get_title():
-            wish_val.set_type_val(slags_item)
-            break
-          
-  #     print "Note:", note_title
-        for note_item in self.task_tv.Notes:
-  #       print "Title:", note_item.get_title()
-          if note_title == note_item.get_title():
-            wish_val.set_note_val(note_item)
-            break
-        
-        final_wish = wish_val.get_row()
-        Wish_ac.append(final_wish)
-        
-      print Wish_ac
-      self.Slags = Slags
-      self.Notes = Notes
+      wish_list = data[0]
+      self.event_text.set_text(data[1])
+      self.year_text.set_value(data[2])
+      self.year_check.set_active(data[3])
       
       store = self.task_tv.get_model()
       store.clear()      
-      for wish in Wish_ac:
-        store.append(wish)
+
+      for wish_entry in wish_list:
+        store.append(wish_entry)
       
     chooser.destroy()
     
-  def syncronize_list(self, list, load_list):
-    for new_note in load_list:
-      if new_note in list:
-        continue
-      else:
-        title = new_note.get_title()
-        found = False
-        for old_note in list:
-          if old_note.get_title() == title:
-            old_note.set_text(new_note.get_text())
-            found = True
-            break
-        
-        if not found:
-          list.append(new_note)
-
   def print_to_output_file(self, widget):
     latex_print = self.latex_radio.get_active()
     
-    chooser_title = "Lav LaTeX fil"
+    chooser_title = "LaTeX file"
     filter_pattern = "*.tex"
     filter_text = "LaTeX | " + filter_pattern
     
     if not latex_print:
-      chooser_title = "Lav tekst fil"
+      chooser_title = "Text file"
       filter_pattern = "*.txt"
-      filter_text = "Tekst | " + filter_pattern
+      filter_text = "Text | " + filter_pattern
 
     chooser = gtk.FileChooserDialog(
        title= chooser_title, action=gtk.FILE_CHOOSER_ACTION_SAVE,
@@ -582,8 +504,8 @@ class GUI:
         cur_iter = store.iter_next(cur_iter)
         if cur_iter == None:
           continue
-      
-      wish = store.get(cur_iter, 0, 1, 2)
+    
+      wish = store.get(cur_iter, 0, 1, 2, 3, 4)
       title = wish[GnomeConfig.COL_TITLE]
    
       price = str(wish[GnomeConfig.COL_PRICE])
@@ -619,8 +541,10 @@ class GUI:
         title = "Ønskeseddel til " + title + " for " + str(int(self.year_text.get_value())) 
       
       latex_str += "\\title{" + title + "}" + new_line
+      latex_str += "\\author{Mikkel Kjær Jensen}" + new_line
       latex_str += "\\begin{document}" + new_line
       latex_str += "\\maketitle" + new_line
+      latex_str += "Følgende ønsker er arrangeret fra mest ønskede til mindst."
       latex_str += "\\center" + new_line
       latex_str += "\\begin{minipage}{15.0cm}" + new_line
       latex_str += "\\begin{tabular}{llll}" + new_line
@@ -645,7 +569,7 @@ class GUI:
           if cur_iter == None:
             continue
               
-        wish = store.get(cur_iter, 0, 1, 2, 3, 4, 5, 6)
+        wish = store.get(cur_iter, 0, 1, 2, 3, 4)
            
         title = wish[GnomeConfig.COL_TITLE]
         title_list = textwrap.wrap(title, self.title_length)           
@@ -656,20 +580,17 @@ class GUI:
         else:
           price = "?"
            
-        type = wish[GnomeConfig.COL_TYPE]
-
-        note = wish[GnomeConfig.COL_NOTE_VAL]
+        slags = wish[GnomeConfig.COL_TYPE]
+        note = wish[GnomeConfig.COL_NOTE]
            
         footnote = ""
-        note_text = note.get_text()
-        note_text = re.sub(url, "\url{\\1}", note_text)
-        note_text = re.sub("%", "\\%", note_text)
-           
-        if note.get_title() != "Ingen":
-          footnote = "\\footnote{" + note_text + "}"
+        if len(note) > 0:
+          note = re.sub(url, "\url{\\1}", note)
+          note = re.sub("%", "\\%", note)
+          footnote = "\\footnote{" + note + "}"
            
         current_wish += 1  
-        latex_str += str(current_wish) + ". & " + title_list[0] + footnote + " & " + type + " & " + price
+        latex_str += str(current_wish) + ". & " + title_list[0] + footnote + " & " + slags + " & " + price
 
         index = 1
         title_list_length = len(title_list)

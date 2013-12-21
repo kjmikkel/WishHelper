@@ -23,7 +23,6 @@ class Wish:
   def __init__(self, data):
     
     if not isinstance(data, tuple):
-    #  print "list"
       row = data
       self.row = row
       self.num = row[GnomeConfig.COL_NUMBER]
@@ -31,12 +30,9 @@ class Wish:
       self.price = row[GnomeConfig.COL_PRICE]
       self.type = row[GnomeConfig.COL_TYPE]
       self.note = row[GnomeConfig.COL_NOTE]
-      self.type_val = row[GnomeConfig.COL_TYPE_VAL]
-      self.note_val = row[GnomeConfig.COL_NOTE_VAL]
     else:
-    #  print "not list"
       data = data[0]
-      self.row = range(0, 7)
+      self.row = range(0, 5)
       self.set_title(data[0])
       self.set_price(data[1])
       self.set_type(data[2])
@@ -72,10 +68,6 @@ class Wish:
     self.row[GnomeConfig.COL_TYPE] = new_type  
     self.type = new_type
 
-  def set_type_val(self, new_type):
-    self.row[GnomeConfig.COL_TYPE_val] = new_type  
-    self.type = new_type
-
   #Note
   def get_note(self):
     return self.note
@@ -83,23 +75,12 @@ class Wish:
   def set_note(self, new_note):
     self.row[GnomeConfig.COL_NOTE] = new_note
     self.note = new_note
-
-  def set_note_val(self, new_note):
-    self.row[GnomeConfig.COL_NOTE_VAL] = new_note
-    self.note = new_note
     
-  def get_note_val(self):
-    return self.note_val
-    
-  def set_type_val(self, type_val):
-    self.row[GnomeConfig.COL_TYPE_VAL] = type_val
-    self.type_val = type_val
-    
-  def get_type_val(self):
-    return self.type_val
-
   def get_row(self):
     return self.row
+
+  def list_rep(self):
+    return [self.num, self.title, self.price, self.type, self.note]
 
   def __str__(self):
     s = "Task Object\n"

@@ -1,26 +1,31 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <requires lib="gtk+" version="2.16"/>
-  <!-- interface-naming-policy project-wide -->
+  <!-- interface-requires gtk+ 3.0 -->
   <object class="GtkWindow" id="MainWindow">
+    <property name="can_focus">False</property>
     <property name="window_position">center</property>
-    <signal name="destroy" handler="on_cancel"/>
+    <signal name="destroy" handler="on_cancel" swapped="no"/>
     <child>
-      <object class="GtkVBox" id="vbox1">
+      <object class="GtkVBox" id="box">
         <property name="visible">True</property>
+        <property name="can_focus">False</property>
         <property name="no_show_all">True</property>
         <child>
-          <object class="GtkHBox" id="hbox1">
+          <object class="GtkHBox" id="main_box">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <child>
-              <object class="GtkVBox" id="vbox3">
+              <object class="GtkVBox" id="box_container">
                 <property name="visible">True</property>
+                <property name="can_focus">False</property>
                 <child>
-                  <object class="GtkHBox" id="hbox3">
+                  <object class="GtkHBox" id="top_line">
                     <property name="visible">True</property>
+                    <property name="can_focus">False</property>
                     <child>
                       <object class="GtkLabel" id="event_label">
                         <property name="visible">True</property>
+                        <property name="can_focus">False</property>
                         <property name="label" translatable="yes">The name of the Event:</property>
                       </object>
                       <packing>
@@ -33,7 +38,7 @@
                       <object class="GtkEntry" id="event_text">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
-                        <property name="invisible_char">&#x25CF;</property>
+                        <property name="invisible_char">●</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -44,7 +49,8 @@
                     <child>
                       <object class="GtkLabel" id="year_label">
                         <property name="visible">True</property>
-                        <property name="label" translatable="yes">&#xC5;rstal: </property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">Årstal: </property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -56,7 +62,7 @@
                       <object class="GtkSpinButton" id="year_spinner">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
-                        <property name="invisible_char">&#x25CF;</property>
+                        <property name="invisible_char">●</property>
                         <property name="adjustment">adjustment1</property>
                       </object>
                       <packing>
@@ -68,13 +74,18 @@
                     <child>
                       <object class="GtkCheckButton" id="year_check">
                         <property name="label" translatable="yes">Include the Year</property>
+                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
+                        <property name="use_action_appearance">False</property>
+                        <property name="xalign">0.5</property>
                         <property name="active">True</property>
                         <property name="draw_indicator">True</property>
                       </object>
                       <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
                         <property name="position">4</property>
                       </packing>
                     </child>
@@ -89,33 +100,38 @@
                   <object class="GtkScrolledWindow" id="WishList">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
-                    <property name="hscrollbar_policy">automatic</property>
-                    <property name="vscrollbar_policy">automatic</property>
                     <property name="window_placement_set">True</property>
                     <child>
                       <placeholder/>
                     </child>
                   </object>
                   <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
                     <property name="position">1</property>
                   </packing>
                 </child>
               </object>
               <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
                 <property name="position">0</property>
               </packing>
             </child>
             <child>
-              <object class="GtkVBox" id="vbox2">
+              <object class="GtkVBox" id="side_box">
                 <property name="visible">True</property>
+                <property name="can_focus">False</property>
                 <property name="homogeneous">True</property>
                 <child>
                   <object class="GtkButton" id="New">
                     <property name="label" translatable="yes">New</property>
+                    <property name="use_action_appearance">False</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <signal name="clicked" handler="on_add_wish"/>
+                    <property name="use_action_appearance">False</property>
+                    <signal name="clicked" handler="on_add_wish" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -126,10 +142,12 @@
                 <child>
                   <object class="GtkButton" id="Edit">
                     <property name="label" translatable="yes">Edit</property>
+                    <property name="use_action_appearance">False</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <signal name="clicked" handler="on_edit_wish"/>
+                    <property name="use_action_appearance">False</property>
+                    <signal name="clicked" handler="on_edit_wish" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -140,10 +158,12 @@
                 <child>
                   <object class="GtkButton" id="Delete">
                     <property name="label" translatable="yes">Delete</property>
+                    <property name="use_action_appearance">False</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <signal name="clicked" handler="on_delete_wish"/>
+                    <property name="use_action_appearance">False</property>
+                    <signal name="clicked" handler="on_delete_wish" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -160,20 +180,25 @@
             </child>
           </object>
           <packing>
+            <property name="expand">True</property>
+            <property name="fill">True</property>
             <property name="position">0</property>
           </packing>
         </child>
         <child>
-          <object class="GtkHBox" id="hbox2">
+          <object class="GtkHBox" id="bottom_box">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="homogeneous">True</property>
             <child>
               <object class="GtkButton" id="Save">
                 <property name="label" translatable="yes">Save</property>
+                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
-                <signal name="clicked" handler="on_save"/>
+                <property name="use_action_appearance">False</property>
+                <signal name="clicked" handler="on_save" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -185,10 +210,12 @@
             <child>
               <object class="GtkButton" id="Load">
                 <property name="label" translatable="yes">Load</property>
+                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
-                <signal name="clicked" handler="on_load"/>
+                <property name="use_action_appearance">False</property>
+                <signal name="clicked" handler="on_load" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -199,10 +226,12 @@
             <child>
               <object class="GtkButton" id="Print">
                 <property name="label" translatable="yes">Print</property>
+                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
-                <signal name="clicked" handler="on_print"/>
+                <property name="use_action_appearance">False</property>
+                <signal name="clicked" handler="on_print" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -214,45 +243,60 @@
             <child>
               <object class="GtkVBox" id="vbox5">
                 <property name="visible">True</property>
+                <property name="can_focus">False</property>
                 <child>
                   <object class="GtkRadioButton" id="latex_radio">
                     <property name="label" translatable="yes">Print LaTeX</property>
+                    <property name="use_action_appearance">False</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
+                    <property name="use_action_appearance">False</property>
+                    <property name="xalign">0.5</property>
                     <property name="active">True</property>
                     <property name="draw_indicator">True</property>
                     <property name="group">text_radio</property>
                   </object>
                   <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
                     <property name="position">0</property>
                   </packing>
                 </child>
                 <child>
                   <object class="GtkRadioButton" id="text_radio">
                     <property name="label" translatable="yes">Print Text</property>
+                    <property name="use_action_appearance">False</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
+                    <property name="use_action_appearance">False</property>
+                    <property name="xalign">0.5</property>
                     <property name="draw_indicator">True</property>
                     <property name="group">latex_radio</property>
                   </object>
                   <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
                     <property name="position">1</property>
                   </packing>
                 </child>
               </object>
               <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
                 <property name="position">3</property>
               </packing>
             </child>
             <child>
               <object class="GtkButton" id="Cancel">
                 <property name="label" translatable="yes">Cancel</property>
+                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
-                <signal name="clicked" handler="on_cancel"/>
+                <property name="use_action_appearance">False</property>
+                <signal name="clicked" handler="on_cancel" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>
