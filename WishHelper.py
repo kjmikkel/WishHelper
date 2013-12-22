@@ -33,6 +33,7 @@ import re
 import textwrap
 from configobj import ConfigObj
 import exceptions
+import subprocess
 
 from wish_editor import WishEditor
 from __init__ import GnomeConfig
@@ -380,47 +381,88 @@ class GUI:
       self.load_path = os.path.dirname(filename)
 
     chooser.destroy()
-    
+
+  def legacy_wishes(self, old_data):
+    note_dict = {}
+    for note in old_data[1]:
+      note_dict[note[0]] = note[1]
+      print note[1]
+  
+    (wishes, text, year, check_set) = old_data[2:]
+      
+    final_wishes = []
+
+    wish_prio = 1
+    for wish in wishes:
+        
+      if len(wish) != 5:
+        (name, price, slags, note) = wish
+        wish = [wish_prio, name, price, slags, note]
+        wish_prio += 1
+
+      note_key = wish[4]
+      if note_dict.has_key(note_key):
+        wish[4] = note_dict[note_key]
+       
+      final_wishes.append(wish)
+          
+    return [final_wishes, text, year, check_set]    
+
   def load(self, widget):
-    chooser = gtk.FileChooserDialog(
-             title="Hent dine gemte ønsker",
-             action=gtk.FILE_CHOOSER_ACTION_OPEN,
-             buttons=(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
-             gtk.STOCK_OPEN, gtk.RESPONSE_OK
-             ))
+    try:
+      chooser = gtk.FileChooserDialog(
+        title="Hent dine gemte ønsker",
+        action=gtk.FILE_CHOOSER_ACTION_OPEN,
+        buttons=(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
+                 gtk.STOCK_OPEN, gtk.RESPONSE_OK
+                 ))
     
-    filter = gtk.FileFilter()
-    filter.set_name("Ønske filer")
-    filter.add_pattern("*.json")
-    chooser.add_filter(filter)
-    chooser.set_default_response(gtk.RESPONSE_OK)
+      filter = gtk.FileFilter()
+      filter.set_name("Ønske filer")
+      filter.add_pattern("*.json")
+      chooser.add_filter(filter)
+      chooser.set_default_response(gtk.RESPONSE_OK)
     
-    if self.load_path:
-      chooser.set_current_folder(self.load_path)
+      if self.load_path:
+        chooser.set_current_folder(self.load_path)
     
-    response = chooser.run()
+        response = chooser.run()
     
-    if response == gtk.RESPONSE_OK:
-      file_name = chooser.get_filename()
-      
-      self.load_path = os.path.dirname(file_name)
+        if response == gtk.RESPONSE_OK:
+          file_name = chooser.get_filename()
+          self.load_path = os.path.dirname(file_name)
 
-      file = open(file_name, "r")
-      file_data = file.read()
-      file.close()
+          file = open(file_name, "r")
+          file_data = file.read()
+          file.close()
       
-      data = json.loads(file_data)
+          init_data = json.loads(file_data)
       
-      wish_list = data[0]
-      self.event_text.set_text(data[1])
-      self.year_text.set_value(data[2])
-      self.year_check.set_active(data[3])
+          # Support for leagcy wishes
+          if len(init_data) != 6:
+            data = init_data
+          else:
+            data = self.legacy_wishes(init_data)
+         
+        wish_list = data[0]  
+        self.event_text.set_text(data[1])
+        self.year_text.set_value(data[2])
+        self.year_check.set_active(data[3])
       
-      store = self.task_tv.get_model()
-      store.clear()      
+        store = self.task_tv.get_model()
+        store.clear()      
 
-      for wish_entry in wish_list:
-        store.append(wish_entry)
+        for wish_entry in wish_list:
+          store.append(wish_entry)
+    except IOError:
+      print "Could not read file"
+      store.clear()
+    except RuntimeError:
+      print "Error parsing the file"
+      store.clear()
+    except ValueError as ve:
+      print "Value error:", ve
+      store = None
       
     chooser.destroy()
     
@@ -475,8 +517,10 @@ class GUI:
         file.close()
         
         if latex_print:
-          os.system("pdflatex \"%s\"" % filename)
-          os.system("pdflatex \"%s\"" % filename)
+          file_dir = os.path.dirname(os.path.abspath(filename))
+          p = subprocess.Popen(["pdflatex", filename], cwd=file_dir)
+          p.wait()
+          subprocess.Popen(["pdflatex", filename], cwd=file_dir)
 
         # If we reach this point, then we are sure we have a valid filename, and we get and store the path
         self.print_path = os.path.dirname(filename)
