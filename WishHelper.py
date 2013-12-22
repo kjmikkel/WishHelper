@@ -473,6 +473,11 @@ class GUI:
         data = data.encode('utf-8')
         file.write(data)
         file.close()
+        
+        if latex_print:
+          os.system("pdflatex \"%s\"" % filename)
+          os.system("pdflatex \"%s\"" % filename)
+
         # If we reach this point, then we are sure we have a valid filename, and we get and store the path
         self.print_path = os.path.dirname(filename)
         
