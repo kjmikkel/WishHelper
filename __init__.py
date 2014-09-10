@@ -13,7 +13,7 @@
 #   GNU General Public License for more details.
 #
 #   You should have received a copy of the GNU General Public License
-#   along with The Lonely Runner Verifier.  If not, see <http://www.gnu.org/licenses/>.
+#   along with WishHelper.  If not, see <http://www.gnu.org/licenses/>.
 
 #This is the gnome_frontend package. It's a GTK interface that want to be
 #simple, HIG compliant and well integrated with Gnome.
@@ -26,7 +26,6 @@ class GnomeConfig:
   current_rep = os.path.join(current_rep, "gui")
   main_gui    = os.path.join(current_rep, "WishHelperMain.glade")
   helper_gui  = os.path.join(current_rep, "WishHelperEditor.glade")
-#  edit_gui    = os.path.join(current_rep, "WishHelperEdit.glade")
 
   COL_NUMBER    = 0
   COL_TITLE     = 1
