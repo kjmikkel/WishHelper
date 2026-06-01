@@ -83,3 +83,27 @@ def test_drop_mime_reorders_to_top():
     assert handled is False
     assert m.data(m.index(0, 1), Qt.DisplayRole) == "Sko"
     assert m.data(m.index(1, 1), Qt.DisplayRole) == "Tastatur"
+
+
+def test_drop_last_row_at_end_is_noop():
+    from PySide6.QtCore import QModelIndex
+    m = model_with_two()
+    data = m.mimeData([m.index(1, 0)])  # drag "Sko" (last row)
+    m.dropMimeData(data, Qt.MoveAction, -1, -1, QModelIndex())  # drop at end
+    assert m.data(m.index(0, 1), Qt.DisplayRole) == "Tastatur"
+    assert m.data(m.index(1, 1), Qt.DisplayRole) == "Sko"
+
+
+def test_drop_row_at_its_own_next_slot_is_noop():
+    from PySide6.QtCore import QModelIndex
+    m = model_with_two()
+    data = m.mimeData([m.index(0, 0)])  # drag "Tastatur" (row 0)
+    m.dropMimeData(data, Qt.MoveAction, 1, 0, QModelIndex())  # drop just after itself
+    assert m.data(m.index(0, 1), Qt.DisplayRole) == "Tastatur"
+    assert m.data(m.index(1, 1), Qt.DisplayRole) == "Sko"
+
+
+def test_mime_data_empty_selection_returns_empty_payload():
+    m = model_with_two()
+    payload = m.mimeData([])
+    assert not payload.hasFormat("application/x-wishhelper-row")

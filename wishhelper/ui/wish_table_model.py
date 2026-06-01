@@ -88,9 +88,9 @@ class WishTableModel(QAbstractTableModel):
         self.dataChanged.emit(top, bottom)
 
     def move_row(self, source: int, dest: int) -> None:
+        self.beginResetModel()
         wish = self._wishlist.wishes.pop(source)
         self._wishlist.wishes.insert(dest, wish)
-        self.beginResetModel()
         self.endResetModel()
 
     # --- drag & drop reordering (internal move) -----------------------------
@@ -107,8 +107,11 @@ class WishTableModel(QAbstractTableModel):
         return [_MIME]
 
     def mimeData(self, indexes):
-        rows = sorted({i.row() for i in indexes if i.isValid()})
         payload = QMimeData()
+        rows = sorted({i.row() for i in indexes if i.isValid()})
+        if not rows:
+            return payload
+        # Only the first row is moved; multi-row drag is not supported.
         payload.setData(_MIME, QByteArray(str(rows[0]).encode("ascii")))
         return payload
 
