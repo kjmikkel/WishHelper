@@ -70,6 +70,7 @@ def _name_cell(wish: Wish) -> list:
     """Build the name cell: linked/plain title + promise marker, then note."""
     safe_title = escape(wish.title)
     if wish.link:
+        # escape() already handles & < > ; the extra map adds " -> &quot; for the attribute value
         safe_link = escape(wish.link, {'"': "&quot;"})
         name_html = f'<a href="{safe_link}" color="#1558b0">{safe_title}</a>'
     else:
@@ -91,10 +92,10 @@ def build_story(wishlist: WishList) -> list:
         story.append(Paragraph(escape(wishlist.author), _SUBTITLE))
 
     header = [
-        Paragraph(t("col_number"), _HEADER),
-        Paragraph(t("col_name"), _HEADER),
-        Paragraph(t("col_type"), _HEADER),
-        Paragraph(t("col_price"), _HEADER),
+        Paragraph(escape(t("col_number")), _HEADER),
+        Paragraph(escape(t("col_name")), _HEADER),
+        Paragraph(escape(t("col_type")), _HEADER),
+        Paragraph(escape(t("col_price")), _HEADER),
     ]
     rows = [header]
     for index, wish in enumerate(wishlist.wishes, start=1):

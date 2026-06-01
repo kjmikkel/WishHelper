@@ -61,3 +61,13 @@ def test_export_pdf_writes_valid_pdf(tmp_path):
     data = path.read_bytes()
     assert data[:5] == b"%PDF-"
     assert len(data) > 1000
+
+
+def test_empty_wishlist_still_builds_pdf(tmp_path):
+    # A wishlist with no items should still produce a valid PDF (header only).
+    wl = WishList(event="jul", year=2026, include_year=True)
+    texts = " ".join(_paragraph_texts(build_story(wl)))
+    assert "Ønskeseddel til jul for 2026" in texts
+    path = tmp_path / "empty.pdf"
+    export_pdf(wl, str(path))
+    assert path.read_bytes()[:5] == b"%PDF-"
