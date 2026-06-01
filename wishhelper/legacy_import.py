@@ -13,7 +13,7 @@ from wishhelper.errors import LegacyFormatError
 from wishhelper.models import Wish, WishList
 
 
-def _wish_from_row(row, note_lookup) -> Wish:
+def _wish_from_row(row, note_lookup: dict) -> Wish:
     """Build a Wish from a legacy row, resolving a note key if present."""
     if len(row) == 5:
         _number, title, price, type_, note = row
@@ -37,12 +37,20 @@ def convert(data) -> WishList:
 
     if len(data) == 6:
         _header, notes, wishes, text, year, check = data
-        note_lookup = {key: value for key, value in notes}
+        try:
+            note_lookup = {key: value for key, value in notes}
+        except (TypeError, ValueError) as exc:
+            raise LegacyFormatError(f"Malformed notes table: {exc}") from exc
     elif len(data) == 4:
         wishes, text, year, check = data
         note_lookup = {}
     else:
         raise LegacyFormatError(f"Unrecognized legacy length: {len(data)}")
+
+    if not isinstance(wishes, list):
+        raise LegacyFormatError(
+            f"Expected a list of wishes, got {type(wishes).__name__}"
+        )
 
     return WishList(
         event=str(text),
