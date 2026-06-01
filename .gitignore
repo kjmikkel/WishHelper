@@ -6,3 +6,6 @@ config.ini
 *.pdf
 *.json
 *.tex
+
+# Brainstorming / visual companion #
+.superpowers/
