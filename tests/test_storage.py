@@ -58,3 +58,13 @@ def test_load_invalid_json_raises_storage_error(tmp_path):
     path.write_text("{not json", encoding="utf-8")
     with pytest.raises(StorageError):
         load(str(path))
+
+
+def test_load_structurally_invalid_wish_raises_storage_error(tmp_path):
+    path = tmp_path / "bad_shape.json"
+    path.write_text(
+        '{"format_version": 2, "wishes": [{"bogus_field": "x"}]}',
+        encoding="utf-8",
+    )
+    with pytest.raises(StorageError):
+        load(str(path))

@@ -21,7 +21,10 @@ def to_dict(wishlist: WishList) -> dict:
 
 def from_dict(data: dict) -> WishList:
     """Build a WishList from a v2-format dict."""
-    wishes = [Wish(**w) for w in data.get("wishes", [])]
+    try:
+        wishes = [Wish(**w) for w in data.get("wishes", [])]
+    except (TypeError, KeyError) as exc:
+        raise StorageError(f"Malformed wish entry: {exc}") from exc
     return WishList(
         event=data.get("event", ""),
         year=data.get("year", 0),
