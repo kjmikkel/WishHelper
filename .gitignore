@@ -6,6 +6,8 @@ config.ini
 *.pdf
 *.json
 *.tex
+# ...but test fixtures must be tracked
+!tests/fixtures/*.json
 
 # Brainstorming / visual companion #
 .superpowers/
