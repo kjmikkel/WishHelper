@@ -1,0 +1,11 @@
+[
+  "header",
+  [["n1", "Brune switches"], ["n2", "Størrelse 44"]],
+  [
+    [1, "Mekanisk tastatur", 899, "Elektronik", "n1"],
+    ["Løbesko", 0, "Tøj", "n2"]
+  ],
+  "fødselsdag",
+  2025.0,
+  false
+]
