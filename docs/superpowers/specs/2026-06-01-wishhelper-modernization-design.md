@@ -202,6 +202,20 @@ or another table a localized, low-risk change later. (Not done now — see §2.)
 
 ## 10. Testing
 
+**Development method: strict red/green TDD.** Every behavior in the GUI-free
+core is built test-first:
+1. **Red** — write one failing test that pins the next small behavior; run it and
+   confirm it fails for the expected reason.
+2. **Green** — write the minimum code to make it pass.
+3. **Refactor** — clean up with the test still green.
+
+No production code in `models`, `storage`, `legacy_import`, `exporters`,
+`settings`, or `i18n` is written before a failing test demands it. The Qt UI
+layer (`ui/`) is the one part exercised manually rather than test-first, because
+its value is visual/interactive; all logic it depends on lives in the tested
+core. The implementation plan (writing-plans step) will be structured as
+red/green increments, and the `test-driven-development` skill governs execution.
+
 `pytest`, targeting the GUI-free core:
 - **models:** construction, defaults, priority-as-order invariants.
 - **storage:** v2 save → load round-trip is lossless.
@@ -214,6 +228,9 @@ or another table a localized, low-risk change later. (Not done now — see §2.)
 UI is exercised manually; logic is covered by the above.
 
 ## 11. Build Order (high level)
+
+Each core step below is executed red/green (test first, then code); "+ tests"
+means the tests are written *before* the module.
 
 1. `pyproject.toml`, package skeleton, Python version pin.
 2. `models.py` + tests.
