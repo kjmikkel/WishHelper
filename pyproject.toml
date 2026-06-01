@@ -1,0 +1,28 @@
+[project]
+name = "wishhelper"
+version = "2.0.0"
+description = "Create a prioritized wishlist and export it as text or PDF."
+requires-python = ">=3.12"
+license = { text = "GPL-3.0-or-later" }
+authors = [{ name = "Mikkel Kjær Jensen" }]
+dependencies = [
+    "PySide6>=6.7",
+    "reportlab>=4.1",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+
+[project.scripts]
+wishhelper = "wishhelper.__main__:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["wishhelper*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

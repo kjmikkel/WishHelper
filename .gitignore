@@ -9,3 +9,6 @@ config.ini
 
 # Brainstorming / visual companion #
 .superpowers/
+
+# Virtual environment #
+.venv/
