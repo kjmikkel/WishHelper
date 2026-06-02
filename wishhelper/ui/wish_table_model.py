@@ -10,8 +10,9 @@ from PySide6.QtCore import (
     Qt,
 )
 
+from wishhelper.formatting import format_price
 from wishhelper.i18n import t
-from wishhelper.models import Wish, WishList
+from wishhelper.models import WishList
 
 COL_NUMBER, COL_NAME, COL_PRICE, COL_TYPE, COL_NOTE = range(5)
 _HEADER_KEYS = ("col_number", "col_name", "col_price", "col_type", "col_note")
@@ -45,18 +46,12 @@ class WishTableModel(QAbstractTableModel):
         if column == COL_NAME:
             return wish.title
         if column == COL_PRICE:
-            return self._price_text(wish)
+            return format_price(wish.price, self._wishlist.currency)
         if column == COL_TYPE:
             return wish.type
         if column == COL_NOTE:
             return wish.note
         return None
-
-    def _price_text(self, wish: Wish) -> str:
-        if wish.price == 0:
-            return t("price_unknown")
-        return t("price_with_currency", price=wish.price,
-                 currency=self._wishlist.currency)
 
     # --- Convenience mutators ----------------------------------------------
     def wishlist(self) -> WishList:

@@ -22,8 +22,9 @@ from reportlab.platypus import (
     TableStyle,
 )
 
+from wishhelper.formatting import format_price, heading, promise_marker
 from wishhelper.i18n import t
-from wishhelper.models import Wish, WishList
+from wishhelper.models import WishList
 
 _styles = getSampleStyleSheet()
 
@@ -46,26 +47,6 @@ _HEADER = ParagraphStyle(
 )
 
 
-def _heading_text(wishlist: WishList) -> str:
-    if wishlist.include_year:
-        return t("doc_heading_year", event=wishlist.event, year=wishlist.year)
-    return t("doc_heading", event=wishlist.event)
-
-
-def _price_text(wish: Wish, currency: str) -> str:
-    if wish.price == 0:
-        return t("price_unknown")
-    return t("price_with_currency", price=wish.price, currency=currency)
-
-
-def _promise_text(wish: Wish) -> str:
-    if not wish.promise_ok:
-        return ""
-    if wish.promise_reason:
-        return " " + t("promise_marker", reason=wish.promise_reason)
-    return " " + t("promise_marker_plain")
-
-
 def _name_cell(wish: Wish) -> list:
     """Build the name cell: linked/plain title + promise marker, then note."""
     safe_title = escape(wish.title)
@@ -75,7 +56,7 @@ def _name_cell(wish: Wish) -> list:
         name_html = f'<a href="{safe_link}" color="#1558b0">{safe_title}</a>'
     else:
         name_html = safe_title
-    name_html += escape(_promise_text(wish))
+    name_html += escape(promise_marker(wish))
     flowables = [Paragraph(name_html, _ITEM)]
     if wish.note:
         flowables.append(Paragraph(escape(wish.note), _NOTE))
@@ -85,7 +66,7 @@ def _name_cell(wish: Wish) -> list:
 def build_story(wishlist: WishList) -> list:
     """Return the ordered list of ReportLab flowables for the document."""
     story = [
-        Paragraph(escape(_heading_text(wishlist)), _TITLE),
+        Paragraph(escape(heading(wishlist)), _TITLE),
         Paragraph(escape(t("intro_line")), _SUBTITLE),
     ]
     if wishlist.author:
@@ -103,7 +84,7 @@ def build_story(wishlist: WishList) -> list:
             Paragraph(str(index), _CELL),
             _name_cell(wish),
             Paragraph(escape(wish.type), _CELL),
-            Paragraph(escape(_price_text(wish, wishlist.currency)), _CELL),
+            Paragraph(escape(format_price(wish.price, wishlist.currency)), _CELL),
         ])
 
     table = Table(rows, colWidths=[1.2 * cm, 9.5 * cm, 3.5 * cm, 2.8 * cm])
@@ -126,7 +107,7 @@ def export_pdf(wishlist: WishList, path: str) -> None:
         path, pagesize=A4,
         leftMargin=2 * cm, rightMargin=2 * cm,
         topMargin=2 * cm, bottomMargin=2 * cm,
-        title=_heading_text(wishlist),
+        title=heading(wishlist),
         author=wishlist.author or "WishHelper",
     )
     doc.build(build_story(wishlist))
