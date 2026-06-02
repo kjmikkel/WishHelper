@@ -29,6 +29,8 @@ STRINGS_DA: dict[str, str] = {
     "action_save": "Gem",
     "action_load": "Hent",
     "action_export": "Eksportér",
+    "action_export_pdf": "Eksportér som PDF",
+    "action_export_text": "Eksportér som tekst",
     "action_settings": "Indstillinger",
     # Field labels
     "label_event": "Begivenhed",

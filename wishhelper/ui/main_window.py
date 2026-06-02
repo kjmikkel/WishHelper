@@ -93,7 +93,8 @@ class MainWindow(QMainWindow):
             (t("action_delete"), self._delete_selected),
             (t("action_load"), self._load),
             (t("action_save"), self._save),
-            (t("action_export"), self._export),
+            (t("action_export_pdf"), self._export_pdf),
+            (t("action_export_text"), self._export_text),
             (t("action_settings"), self._open_settings),
         ]:
             button = QPushButton(label)
@@ -182,23 +183,26 @@ class MainWindow(QMainWindow):
         self._settings.last_save_dir = os.path.dirname(path)
         self._persist_settings()
 
-    def _export(self) -> None:
+    def _export_pdf(self) -> None:
+        self._export("pdf", "PDF (*.pdf)", export_pdf)
+
+    def _export_text(self) -> None:
+        def write_text(wishlist, path):
+            with open(path, "w", encoding="utf-8") as fh:
+                fh.write(export_text(wishlist))
+
+        self._export("txt", "Text (*.txt)", write_text)
+
+    def _export(self, extension: str, file_filter: str, write_fn) -> None:
         self._sync_document_fields()
-        path, selected = QFileDialog.getSaveFileName(
-            self, t("action_export"), self._settings.last_export_dir,
-            "PDF (*.pdf);;Text (*.txt)")
+        path, _ = QFileDialog.getSaveFileName(
+            self, t("action_export"), self._settings.last_export_dir, file_filter)
         if not path:
             return
+        if not path.lower().endswith("." + extension):
+            path += "." + extension
         try:
-            if selected.startswith("Text") or path.lower().endswith(".txt"):
-                if not path.lower().endswith(".txt"):
-                    path += ".txt"
-                with open(path, "w", encoding="utf-8") as fh:
-                    fh.write(export_text(self._model.wishlist()))
-            else:
-                if not path.lower().endswith(".pdf"):
-                    path += ".pdf"
-                export_pdf(self._model.wishlist(), path)
+            write_fn(self._model.wishlist(), path)
         except (OSError, WishHelperError) as exc:
             QMessageBox.critical(self, t("error_save_title"), str(exc))
             return
