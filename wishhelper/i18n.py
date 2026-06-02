@@ -45,6 +45,9 @@ STRINGS_DA: dict[str, str] = {
     "label_currency": "Valuta",
     "label_language": "Sprog",
     "label_theme": "Tema",
+    "theme_system": "System",
+    "theme_light": "Lyst",
+    "theme_dark": "Mørkt",
     # Errors
     "error_load_title": "Kunne ikke hente filen",
     "error_save_title": "Kunne ikke gemme filen",

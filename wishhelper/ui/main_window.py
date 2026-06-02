@@ -8,6 +8,7 @@ import os
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import (
     QAbstractItemView as AIV,
+    QApplication,
     QCheckBox,
     QFileDialog,
     QHBoxLayout,
@@ -30,6 +31,8 @@ from wishhelper.i18n import t
 from wishhelper.models import WishList
 from wishhelper.settings import Settings, save_settings
 from wishhelper.ui.resources import APP_ICON
+from wishhelper.ui.settings_dialog import SettingsDialog
+from wishhelper.ui.theme import apply_theme
 from wishhelper.ui.wish_editor import WishEditor
 from wishhelper.ui.wish_table_model import WishTableModel
 
@@ -91,6 +94,7 @@ class MainWindow(QMainWindow):
             (t("action_load"), self._load),
             (t("action_save"), self._save),
             (t("action_export"), self._export),
+            (t("action_settings"), self._open_settings),
         ]:
             button = QPushButton(label)
             button.clicked.connect(slot)
@@ -128,6 +132,20 @@ class MainWindow(QMainWindow):
         row = self._selected_row()
         if row >= 0:
             self._model.remove_wish(row)
+
+    def _open_settings(self) -> None:
+        dialog = SettingsDialog(self._settings, parent=self)
+        if not dialog.exec():
+            return
+        self._settings = dialog.result_settings()
+        apply_theme(QApplication.instance(), self._settings.theme)
+        # Reflect the new author/currency defaults in the open document so the
+        # price column and exports use them immediately.
+        wishlist = self._model.wishlist()
+        wishlist.author = self._settings.author
+        wishlist.currency = self._settings.currency
+        self._model.set_wishlist(wishlist)
+        self._persist_settings()
 
     def _load(self) -> None:
         path, _ = QFileDialog.getOpenFileName(
