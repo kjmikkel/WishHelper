@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import (
     QCheckBox,
     QDialog,
@@ -14,12 +15,14 @@ from PySide6.QtWidgets import (
 
 from wishhelper.i18n import t
 from wishhelper.models import Wish
+from wishhelper.ui.resources import ADD_ICON
 
 
 class WishEditor(QDialog):
     def __init__(self, wish: Wish | None = None, parent=None):
         super().__init__(parent)
         self.setWindowTitle(t("label_title"))
+        self.setWindowIcon(QIcon(ADD_ICON))
         self._build_ui()
         if wish is not None:
             self._load(wish)

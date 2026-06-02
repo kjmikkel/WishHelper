@@ -5,6 +5,7 @@ from __future__ import annotations
 import datetime
 import os
 
+from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import (
     QAbstractItemView as AIV,
     QCheckBox,
@@ -28,6 +29,7 @@ from wishhelper.exporters.text import export_text
 from wishhelper.i18n import t
 from wishhelper.models import WishList
 from wishhelper.settings import Settings, save_settings
+from wishhelper.ui.resources import APP_ICON
 from wishhelper.ui.wish_editor import WishEditor
 from wishhelper.ui.wish_table_model import WishTableModel
 
@@ -38,6 +40,7 @@ class MainWindow(QMainWindow):
         self._settings = settings
         self._settings_path = settings_path
         self.setWindowTitle(t("app_title"))
+        self.setWindowIcon(QIcon(APP_ICON))
         self._model = WishTableModel(self._new_wishlist())
         self._build_ui()
 
