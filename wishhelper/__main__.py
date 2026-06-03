@@ -13,8 +13,28 @@ from wishhelper.ui.main_window import MainWindow
 from wishhelper.ui.resources import APP_ICON
 from wishhelper.ui.theme import apply_theme
 
+# Stable per-app identity for the Windows shell (taskbar grouping/pinning).
+_APP_USER_MODEL_ID = "MikkelKjaerJensen.WishHelper"
+
+
+def _set_windows_app_id() -> None:
+    """Give the process its own Windows shell identity so the taskbar shows the
+    WishHelper icon instead of the generic python.exe icon. No-op off Windows;
+    failures are swallowed since the taskbar icon is cosmetic.
+    """
+    if sys.platform != "win32":
+        return
+    try:
+        import ctypes
+
+        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(
+            _APP_USER_MODEL_ID)
+    except (AttributeError, OSError):
+        pass
+
 
 def main() -> int:
+    _set_windows_app_id()  # before any window is created
     app = QApplication(sys.argv)
     app.setWindowIcon(QIcon(APP_ICON))
     settings_path = default_settings_path()
