@@ -14,6 +14,7 @@ STRINGS_DA: dict[str, str] = {
     "col_price": "Pris",
     "col_type": "Type",
     "col_note": "Note",
+    "add_row_hint": "Tilføj ønske…",
     # Document
     "doc_heading": "Ønskeseddel til {event}",
     "doc_heading_year": "Ønskeseddel til {event} for {year}",

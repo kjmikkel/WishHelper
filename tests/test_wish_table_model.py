@@ -14,8 +14,8 @@ def model_with_two():
 
 def test_row_and_column_counts():
     m = model_with_two()
-    assert m.rowCount() == 2
-    assert m.columnCount() == 5  # #, Navn, Pris, Type, Note
+    assert m.rowCount() == 3  # 2 wishes + the phantom "add" row
+    assert m.columnCount() == 6  # #, Navn, Pris, Type, Note, (actions)
 
 
 def test_priority_column_is_one_based_index():
@@ -39,14 +39,15 @@ def test_header_labels_danish():
 def test_add_wish_appends_and_grows():
     m = model_with_two()
     m.add_wish(Wish(title="Bog", price=120, type="Bog"))
-    assert m.rowCount() == 3
+    assert m.rowCount() == 4  # 3 wishes + the phantom "add" row
     assert m.data(m.index(2, 0), Qt.DisplayRole) == "3"
+    assert m.is_add_row(3)
 
 
 def test_remove_wish_renumbers():
     m = model_with_two()
     m.remove_wish(0)
-    assert m.rowCount() == 1
+    assert m.rowCount() == 2  # 1 wish + the phantom "add" row
     assert m.data(m.index(0, 0), Qt.DisplayRole) == "1"
     assert m.data(m.index(0, 1), Qt.DisplayRole) == "Sko"
 
@@ -71,6 +72,34 @@ def test_drag_flags_enabled():
     assert flags & Qt.ItemIsDragEnabled
     # Drops are accepted on the empty (invalid) parent for between-row drops
     assert m.flags(m.index(-1, -1)) & Qt.ItemIsDropEnabled
+
+
+def test_add_row_is_not_draggable_or_droppable():
+    m = model_with_two()
+    add_flags = m.flags(m.index(2, 0))  # the phantom row
+    assert not (add_flags & Qt.ItemIsDragEnabled)
+    assert not (add_flags & Qt.ItemIsDropEnabled)
+    assert add_flags & Qt.ItemIsEnabled  # still clickable to add
+
+
+def test_is_add_row_boundaries():
+    m = model_with_two()
+    assert not m.is_add_row(0)
+    assert not m.is_add_row(1)
+    assert m.is_add_row(2)  # one past the last real wish
+
+
+def test_add_row_shows_plus_and_hint():
+    m = model_with_two()
+    assert m.data(m.index(2, 0), Qt.DisplayRole) == "+"
+    assert m.data(m.index(2, 1), Qt.DisplayRole) == "Tilføj ønske…"
+    assert m.data(m.index(2, 2), Qt.DisplayRole) is None
+
+
+def test_action_column_holds_no_data():
+    m = model_with_two()
+    assert m.data(m.index(0, 5), Qt.DisplayRole) is None
+    assert m.headerData(5, Qt.Horizontal, Qt.DisplayRole) == ""
 
 
 def test_drop_mime_reorders_to_top():

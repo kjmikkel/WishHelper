@@ -12,6 +12,7 @@ from PySide6.QtWidgets import (
     QCheckBox,
     QFileDialog,
     QHBoxLayout,
+    QHeaderView,
     QLabel,
     QLineEdit,
     QMainWindow,
@@ -33,8 +34,9 @@ from wishhelper.settings import Settings, save_settings
 from wishhelper.ui.resources import APP_ICON
 from wishhelper.ui.settings_dialog import SettingsDialog
 from wishhelper.ui.theme import apply_theme
+from wishhelper.ui.action_delegate import ActionColumnDelegate
 from wishhelper.ui.wish_editor import WishEditor
-from wishhelper.ui.wish_table_model import WishTableModel
+from wishhelper.ui.wish_table_model import COL_ACTIONS, WishTableModel
 
 
 class MainWindow(QMainWindow):
@@ -83,14 +85,23 @@ class MainWindow(QMainWindow):
         self.table.setDragDropOverwriteMode(False)
         self.table.verticalHeader().setVisible(False)
         self.table.doubleClicked.connect(lambda *_: self._edit_selected())
+        self.table.clicked.connect(self._on_cell_clicked)
+
+        # Per-row "Rediger" / "Slet" links live in the action column.
+        self._action_delegate = ActionColumnDelegate(
+            self._model.is_add_row, self.table)
+        self._action_delegate.edit_requested.connect(self._edit_row)
+        self._action_delegate.delete_requested.connect(self._delete_row)
+        self.table.setItemDelegateForColumn(COL_ACTIONS, self._action_delegate)
+        self.table.horizontalHeader().setSectionResizeMode(
+            COL_ACTIONS, QHeaderView.ResizeToContents)
         outer.addWidget(self.table)
 
         # Action bar
+        # Bottom bar holds document-level actions only; row actions (add/edit/
+        # delete) live in the table itself (phantom add row + action column).
         bar = QHBoxLayout()
         for label, slot in [
-            (t("action_add"), self._add),
-            (t("action_edit"), self._edit_selected),
-            (t("action_delete"), self._delete_selected),
             (t("action_load"), self._load),
             (t("action_save"), self._save),
             (t("action_export_pdf"), self._export_pdf),
@@ -121,17 +132,23 @@ class MainWindow(QMainWindow):
         if editor.exec():
             self._model.add_wish(editor.wish())
 
+    def _on_cell_clicked(self, index) -> None:
+        # A single click on the trailing phantom row starts a new wish.
+        if self._model.is_add_row(index.row()):
+            self._add()
+
     def _edit_selected(self) -> None:
-        row = self._selected_row()
-        if row < 0:
+        self._edit_row(self._selected_row())
+
+    def _edit_row(self, row: int) -> None:
+        if row < 0 or self._model.is_add_row(row):
             return
         editor = WishEditor(self._model.wish_at(row), parent=self)
         if editor.exec():
             self._model.replace_wish(row, editor.wish())
 
-    def _delete_selected(self) -> None:
-        row = self._selected_row()
-        if row >= 0:
+    def _delete_row(self, row: int) -> None:
+        if 0 <= row and not self._model.is_add_row(row):
             self._model.remove_wish(row)
 
     def _open_settings(self) -> None:

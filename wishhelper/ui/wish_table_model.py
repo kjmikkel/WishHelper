@@ -15,7 +15,9 @@ from wishhelper.i18n import t
 from wishhelper.models import WishList
 
 COL_NUMBER, COL_NAME, COL_PRICE, COL_TYPE, COL_NOTE = range(5)
+COL_ACTIONS = 5  # painted by ActionColumnDelegate; the model holds no data here
 _HEADER_KEYS = ("col_number", "col_name", "col_price", "col_type", "col_note")
+_COLUMN_COUNT = len(_HEADER_KEYS) + 1  # + the action column
 _MIME = "application/x-wishhelper-row"
 
 
@@ -26,21 +28,34 @@ class WishTableModel(QAbstractTableModel):
 
     # --- Qt model interface -------------------------------------------------
     def rowCount(self, parent=QModelIndex()) -> int:
-        return 0 if parent.isValid() else len(self._wishlist.wishes)
+        # + 1 for the trailing phantom "add wish" row.
+        return 0 if parent.isValid() else len(self._wishlist.wishes) + 1
 
     def columnCount(self, parent=QModelIndex()) -> int:
-        return 0 if parent.isValid() else len(_HEADER_KEYS)
+        return 0 if parent.isValid() else _COLUMN_COUNT
+
+    def is_add_row(self, row: int) -> bool:
+        """True for the trailing phantom row that creates a new wish."""
+        return row == len(self._wishlist.wishes)
 
     def headerData(self, section, orientation, role=Qt.DisplayRole):
         if orientation == Qt.Horizontal and role == Qt.DisplayRole:
+            if section == COL_ACTIONS:
+                return ""  # the delegate paints its own controls
             return t(_HEADER_KEYS[section])
         return None
 
     def data(self, index, role=Qt.DisplayRole):
         if not index.isValid() or role != Qt.DisplayRole:
             return None
-        wish = self._wishlist.wishes[index.row()]
         column = index.column()
+        if self.is_add_row(index.row()):
+            if column == COL_NUMBER:
+                return "+"
+            if column == COL_NAME:
+                return t("add_row_hint")
+            return None
+        wish = self._wishlist.wishes[index.row()]
         if column == COL_NUMBER:
             return str(index.row() + 1)
         if column == COL_NAME:
@@ -51,7 +66,7 @@ class WishTableModel(QAbstractTableModel):
             return wish.type
         if column == COL_NOTE:
             return wish.note
-        return None
+        return None  # COL_ACTIONS holds no data; the delegate paints it
 
     # --- Convenience mutators ----------------------------------------------
     def wishlist(self) -> WishList:
@@ -91,9 +106,11 @@ class WishTableModel(QAbstractTableModel):
     # --- drag & drop reordering (internal move) -----------------------------
     def flags(self, index):
         base = Qt.ItemIsEnabled | Qt.ItemIsSelectable
-        if index.isValid():
-            return base | Qt.ItemIsDragEnabled | Qt.ItemIsDropEnabled
-        return base | Qt.ItemIsDropEnabled
+        if not index.isValid():
+            return base | Qt.ItemIsDropEnabled
+        if self.is_add_row(index.row()):
+            return base  # the phantom row is neither draggable nor a drop target
+        return base | Qt.ItemIsDragEnabled | Qt.ItemIsDropEnabled
 
     def supportedDropActions(self):
         return Qt.MoveAction
@@ -103,7 +120,10 @@ class WishTableModel(QAbstractTableModel):
 
     def mimeData(self, indexes):
         payload = QMimeData()
-        rows = sorted({i.row() for i in indexes if i.isValid()})
+        rows = sorted({
+            i.row() for i in indexes
+            if i.isValid() and not self.is_add_row(i.row())
+        })
         if not rows:
             return payload
         # Only the first row is moved; multi-row drag is not supported.
@@ -114,12 +134,16 @@ class WishTableModel(QAbstractTableModel):
         if action != Qt.MoveAction or not data.hasFormat(_MIME):
             return False
         source = int(bytes(data.data(_MIME).data()).decode("ascii"))
+        count = len(self._wishlist.wishes)
+        if not 0 <= source < count:
+            return False  # never reorder using the phantom row as the source
         if row != -1:
             dest = row
         elif parent.isValid():
             dest = parent.row()
         else:
-            dest = len(self._wishlist.wishes)
+            dest = count
+        dest = min(dest, count)  # clamp: cannot drop into or past the phantom row
         if dest > source:
             dest -= 1
         if dest != source:
