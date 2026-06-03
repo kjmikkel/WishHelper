@@ -1,2 +1,6 @@
 # Shell scripts must keep LF endings or bash chokes on the CRLF shebang.
 *.sh text eol=lf
+
+# Binary assets must never be line-ending converted by autocrlf.
+*.ico binary
+*.png binary

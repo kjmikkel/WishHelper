@@ -24,7 +24,7 @@ build-backend = "setuptools.build_meta"
 include = ["wishhelper*"]
 
 [tool.setuptools.package-data]
-"wishhelper.resources" = ["*.png"]
+"wishhelper.resources" = ["*.png", "*.ico"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
