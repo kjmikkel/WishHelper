@@ -14,7 +14,9 @@ from wishhelper.ui.resources import APP_ICON
 from wishhelper.ui.theme import apply_theme
 
 # Stable per-app identity for the Windows shell (taskbar grouping/pinning).
-_APP_USER_MODEL_ID = "MikkelKjaerJensen.WishHelper"
+# Reverse-DNS form, deliberately a fresh string so Windows resolves the icon
+# from scratch rather than from a stale per-AUMID cache entry.
+_APP_USER_MODEL_ID = "dk.kjaerjensen.wishhelper"
 
 
 def _set_windows_app_id() -> None:
