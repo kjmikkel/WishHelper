@@ -66,6 +66,32 @@ def test_move_row_reorders_and_renumbers():
     assert m.data(m.index(1, 1), Qt.DisplayRole) == "Tastatur"
 
 
+def test_move_row_emits_rows_moved_not_reset():
+    # The point of the incremental move: an in-place rowsMoved, never a full
+    # model reset (which would collapse selection and view state).
+    m = model_with_two()
+    moved, reset = [], []
+    m.rowsMoved.connect(lambda *a: moved.append(a))
+    m.modelReset.connect(lambda: reset.append(True))
+    m.move_row(0, 1)  # move "Tastatur" down past "Sko"
+    assert moved and not reset
+    assert m.data(m.index(0, 1), Qt.DisplayRole) == "Sko"
+    assert m.data(m.index(1, 1), Qt.DisplayRole) == "Tastatur"
+
+
+def test_move_row_down_renumbers_across_span():
+    # Moving down exercises the destinationChild = dest + 1 off-by-one.
+    m = WishTableModel(WishList(wishes=[
+        Wish(title="A"), Wish(title="B"), Wish(title="C"),
+    ]))
+    m.move_row(0, 2)  # "A" to the bottom of the real rows
+    titles = [m.data(m.index(r, 1), Qt.DisplayRole) for r in range(3)]
+    numbers = [m.data(m.index(r, 0), Qt.DisplayRole) for r in range(3)]
+    assert titles == ["B", "C", "A"]
+    assert numbers == ["1", "2", "3"]
+    assert m.is_add_row(3)  # phantom row is still last
+
+
 def test_drag_flags_enabled():
     m = model_with_two()
     flags = m.flags(m.index(0, 0))

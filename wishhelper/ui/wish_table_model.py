@@ -98,10 +98,23 @@ class WishTableModel(QAbstractTableModel):
         self.dataChanged.emit(top, bottom)
 
     def move_row(self, source: int, dest: int) -> None:
-        self.beginResetModel()
+        if source == dest:
+            return
+        # beginMoveRows uses pre-removal coordinates and inserts *before*
+        # destinationChild; that equals `dest` when moving up, but `dest + 1`
+        # when moving down (skip past the source row that is about to leave).
+        qt_dest = dest + 1 if dest > source else dest
+        if not self.beginMoveRows(QModelIndex(), source, source,
+                                  QModelIndex(), qt_dest):
+            return
         wish = self._wishlist.wishes.pop(source)
         self._wishlist.wishes.insert(dest, wish)
-        self.endResetModel()
+        self.endMoveRows()
+        # The "#" column is positional, so every row between source and dest is
+        # renumbered; a move (unlike a reset) won't refresh them on its own.
+        top = self.index(min(source, dest), COL_NUMBER)
+        bottom = self.index(max(source, dest), COL_NUMBER)
+        self.dataChanged.emit(top, bottom, [Qt.DisplayRole])
 
     # --- drag & drop reordering (internal move) -----------------------------
     def flags(self, index):

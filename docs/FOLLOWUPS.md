@@ -9,7 +9,11 @@ Plan: `docs/superpowers/plans/2026-06-01-wishhelper-modernization.md`
 
 ---
 
-## 1. Drag-drop reorder: use `beginMoveRows` instead of a full model reset
+## 1. Drag-drop reorder: use `beginMoveRows` instead of a full model reset — ✅ DONE
+- **Status:** Done. `move_row()` now uses `beginMoveRows()` / `endMoveRows()`
+  (with `dataChanged` on the positional `#` column), preserving selection/view
+  state instead of resetting the model. Covered by new tests
+  (`test_move_row_emits_rows_moved_not_reset`, `…_down_renumbers_across_span`).
 - **Where:** `wishhelper/ui/wish_table_model.py` — `move_row()`.
 - **Now:** `move_row` brackets the list mutation with `beginResetModel()` /
   `endResetModel()`. Correct and tested, but a full reset is heavy-handed: it
