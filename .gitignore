@@ -17,3 +17,6 @@ config.ini
 
 # Build artifacts #
 *.egg-info/
+build/
+dist/
+*.spec

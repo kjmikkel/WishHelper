@@ -62,6 +62,25 @@ python -m wishhelper
 pytest
 ```
 
+## Build a standalone executable
+
+Running via `python -m wishhelper` shows the **Python** icon in the Windows
+taskbar — the running process is `python.exe`, and Windows takes the taskbar
+icon from the executable. Building a standalone binary fixes this: the process
+becomes `WishHelper.exe` with the WishHelper icon embedded.
+
+```sh
+.\build.ps1       # Windows  -> dist\WishHelper.exe
+```
+
+```sh
+./build.sh        # macOS / Linux
+```
+
+This produces a one-file, windowed executable in `dist/` (via PyInstaller, part
+of the `dev` extra). Launch `dist\WishHelper.exe` directly — no Python needed,
+and the taskbar shows the correct icon.
+
 ## Icon attribution
 
 - `wishlist_add.png` by [Fatcow Webhosting](http://www.fatcow.com/)
