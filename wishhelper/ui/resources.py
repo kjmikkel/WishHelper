@@ -1,15 +1,19 @@
 """Locate bundled image resources (window/app icons).
 
-Repo layout: ``<root>/images/*.png`` alongside ``<root>/wishhelper/ui/``.
-Paths are resolved relative to this file so the app finds its icons regardless
-of the current working directory. Importing this module does NOT import Qt.
+Icons live inside the package at ``wishhelper/resources/*.png`` and are resolved
+via :mod:`importlib.resources`, so they are found regardless of the current
+working directory and ship correctly in a wheel / ``pip install``. Importing
+this module does NOT import Qt.
 """
 
 from __future__ import annotations
 
-from pathlib import Path
+from importlib.resources import files
 
-_IMAGES_DIR = Path(__file__).resolve().parents[2] / "images"
+_RESOURCES = files("wishhelper.resources")
 
-APP_ICON = str(_IMAGES_DIR / "wishlist.png")
-ADD_ICON = str(_IMAGES_DIR / "wishlist_add.png")
+# Concrete filesystem paths (QIcon needs a path string). This assumes a normal
+# on-disk install; a zip-imported package would require importlib.resources
+# .as_file(), which WishHelper does not target.
+APP_ICON = str(_RESOURCES / "wishlist.png")
+ADD_ICON = str(_RESOURCES / "wishlist_add.png")

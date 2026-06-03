@@ -25,7 +25,11 @@ Plan: `docs/superpowers/plans/2026-06-01-wishhelper-modernization.md`
 - **Effort:** small. Watch the off-by-one in `beginMoveRows`' destination index
   (Qt's semantics differ from a plain list insert).
 
-## 2. Bundle `images/` as package data for wheel builds
+## 2. Bundle `images/` as package data for wheel builds — ✅ DONE
+- **Status:** Done. Icons moved to `wishhelper/resources/*.png` (a sub-package),
+  resolved via `importlib.resources.files("wishhelper.resources")`, and declared
+  as `[tool.setuptools.package-data]`. Verified a built wheel now contains both
+  PNGs. `images/` removed.
 - **Where:** `wishhelper/ui/resources.py`, `pyproject.toml`.
 - **Now:** icon paths resolve via `Path(__file__).resolve().parents[2] / "images"`,
   i.e. relative to the repo root. This works when running from source
