@@ -4,14 +4,20 @@ Create a prioritized wishlist and export it as plain text or a polished PDF.
 
 ## Features
 
-- Add, edit, delete, and **drag-to-reorder** wishes (row order = priority).
+- Add wishes from the trailing row, edit/delete from each row's inline actions,
+  and **drag-to-reorder** (row order = priority).
 - Each wish has a name, price, type, free-text note, an optional clickable
   **link**, and a "**a promise is enough**" flag with an optional reason
   (for items not yet on the market).
 - Export to plain text or a professional **PDF** (via ReportLab — no LaTeX
   required) with inline notes and clickable links.
 - Save/load wishlists as versioned JSON; old files are imported automatically.
-- Danish UI, structured for future translation. Light/dark/system themes.
+- **Danish and English UI**, switchable live. Light/dark/system themes that
+  follow the OS colour scheme.
+- **System tray icon**, and one-step scripts to install, run, and build a
+  standalone executable.
+
+See [CHANGELOG.md](CHANGELOG.md) for release history.
 
 ## Requirements
 

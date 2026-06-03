@@ -1,6 +1,6 @@
 [project]
 name = "wishhelper"
-version = "2.0.0"
+version = "2.1.0"
 description = "Create a prioritized wishlist and export it as text or PDF."
 requires-python = ">=3.12"
 license = { text = "GPL-3.0-or-later" }
