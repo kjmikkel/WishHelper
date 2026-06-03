@@ -72,3 +72,22 @@ def apply_theme(app: QApplication, theme: str) -> None:
         app.setPalette(_dark_palette())
     else:
         app.setPalette(_light_palette())
+
+
+def install_color_scheme_follower(app: QApplication, current_theme) -> object:
+    """Re-apply the palette live when the OS light/dark scheme flips.
+
+    Only re-applies while the active theme is ``"system"``; explicit
+    ``"light"``/``"dark"`` choices must not follow the OS. ``current_theme`` is a
+    zero-arg callable returning the live theme name, so it tracks runtime
+    settings changes rather than capturing a stale value.
+
+    Returns the connected slot; keep a reference to it for the app's lifetime so
+    the signal connection is not garbage-collected.
+    """
+    def _on_color_scheme_changed(*_args) -> None:
+        if current_theme() == "system":
+            apply_theme(app, "system")
+
+    app.styleHints().colorSchemeChanged.connect(_on_color_scheme_changed)
+    return _on_color_scheme_changed

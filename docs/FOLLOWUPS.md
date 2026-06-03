@@ -76,7 +76,12 @@ Plan: `docs/superpowers/plans/2026-06-01-wishhelper-modernization.md`
 - **Why deferred:** minor UX nuance flagged in the final review, not a bug.
 - **Effort:** small.
 
-## 6. `"system"` theme is resolved once at startup
+## 6. `"system"` theme is resolved once at startup — ✅ DONE
+- **Status:** Done. `install_color_scheme_follower()` connects
+  `QStyleHints.colorSchemeChanged`; `MainWindow` installs it and re-applies the
+  palette live, but only while the active theme is `"system"` (read via a live
+  callable so settings changes are tracked). Covered by
+  `test_color_scheme_follower_reapplies_only_for_system`.
 - **Where:** `wishhelper/ui/theme.py` — `apply_theme()`.
 - **Now:** the OS colour scheme is read when the theme is applied (startup and on
   settings change). If the OS flips light↔dark while the app is open, the app

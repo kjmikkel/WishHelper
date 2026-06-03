@@ -33,7 +33,7 @@ from wishhelper.models import WishList
 from wishhelper.settings import Settings, save_settings
 from wishhelper.ui.resources import APP_ICON
 from wishhelper.ui.settings_dialog import SettingsDialog
-from wishhelper.ui.theme import apply_theme
+from wishhelper.ui.theme import apply_theme, install_color_scheme_follower
 from wishhelper.ui.action_delegate import ActionColumnDelegate
 from wishhelper.ui.wish_editor import WishEditor
 from wishhelper.ui.wish_table_model import COL_ACTIONS, WishTableModel
@@ -48,6 +48,10 @@ class MainWindow(QMainWindow):
         self.setWindowIcon(QIcon(APP_ICON))
         self._model = WishTableModel(self._new_wishlist())
         self._build_ui()
+        # Follow the OS colour scheme live while the theme is "system". The
+        # lambda reads the live setting, which _open_settings may replace.
+        self._theme_follower = install_color_scheme_follower(
+            QApplication.instance(), lambda: self._settings.theme)
 
     def _new_wishlist(self) -> WishList:
         return WishList(
