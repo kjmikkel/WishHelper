@@ -59,7 +59,11 @@ Plan: `docs/superpowers/plans/2026-06-01-wishhelper-modernization.md`
 - **Why deferred:** Danish-only was the agreed scope; structure is ready.
 - **Effort:** medium (translation content is the bulk).
 
-## 4. PDF tests rely on ReportLab private attributes
+## 4. PDF tests rely on ReportLab private attributes — ✅ DONE
+- **Status:** Done. Tests now render the story to PDF bytes and assert via
+  `pypdf` — extracted text for content and link *annotations* (`/Annots` →
+  `/A` → `/URI`) for the hyperlink — instead of reaching into
+  `Table._cellvalues` / `Paragraph.text`. `pypdf>=4.0` added to the `dev` extra.
 - **Where:** `tests/test_pdf_export.py` — `_paragraph_texts` descends into
   `Table._cellvalues` and reads `Paragraph.text`.
 - **Now:** the linked title / note / promise marker live inside table cells, so
