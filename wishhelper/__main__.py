@@ -7,6 +7,7 @@ import sys
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QApplication
 
+from wishhelper.i18n import set_language
 from wishhelper.settings import default_settings_path, load_settings
 from wishhelper.ui.main_window import MainWindow
 from wishhelper.ui.resources import APP_ICON
@@ -18,6 +19,7 @@ def main() -> int:
     app.setWindowIcon(QIcon(APP_ICON))
     settings_path = default_settings_path()
     settings = load_settings(settings_path)
+    set_language(settings.language)
     apply_theme(app, settings.theme)
     window = MainWindow(settings, settings_path)
     window.resize(820, 520)

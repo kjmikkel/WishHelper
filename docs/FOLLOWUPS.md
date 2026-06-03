@@ -41,7 +41,13 @@ Plan: `docs/superpowers/plans/2026-06-01-wishhelper-modernization.md`
 - **Why deferred:** not packaged/distributed yet; runs fine from the repo.
 - **Effort:** small–medium.
 
-## 3. Additional UI languages (i18n is scaffolded, not multilingual)
+## 3. Additional UI languages (i18n is scaffolded, not multilingual) — ✅ DONE
+- **Status:** Done. Added `STRINGS_EN` plus `translate()/set_language()/
+  get_language()/available_languages()/language_name()`; `t()` reads the active
+  language. `__main__` applies `Settings.language` at startup; the settings
+  dialog has a language dropdown; `MainWindow._retranslate_ui()` switches the UI
+  live. Key-parity between tables is enforced by a test. (More languages now just
+  need another table.)
 - **Where:** `wishhelper/i18n.py`, `wishhelper/settings.py` (`Settings.language`),
   `wishhelper/ui/settings_dialog.py`.
 - **Now:** all user-facing strings go through `t()` against a single Danish

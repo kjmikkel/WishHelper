@@ -13,7 +13,7 @@ from PySide6.QtWidgets import (
     QLineEdit,
 )
 
-from wishhelper.i18n import t
+from wishhelper.i18n import available_languages, language_name, t
 from wishhelper.settings import Settings
 from wishhelper.ui.resources import APP_ICON
 
@@ -37,6 +37,12 @@ class SettingsDialog(QDialog):
         layout = QFormLayout(self)
         self.author_edit = QLineEdit(self._settings.author)
         self.currency_edit = QLineEdit(self._settings.currency)
+        self.language_combo = QComboBox()
+        for code in available_languages():
+            self.language_combo.addItem(language_name(code), code)
+        lang_index = self.language_combo.findData(self._settings.language)
+        if lang_index >= 0:
+            self.language_combo.setCurrentIndex(lang_index)
         self.theme_combo = QComboBox()
         for value in _THEME_VALUES:
             self.theme_combo.addItem(t(_THEME_LABEL_KEYS[value]), value)
@@ -46,6 +52,7 @@ class SettingsDialog(QDialog):
 
         layout.addRow(t("label_author"), self.author_edit)
         layout.addRow(t("label_currency"), self.currency_edit)
+        layout.addRow(t("label_language"), self.language_combo)
         layout.addRow(t("label_theme"), self.theme_combo)
 
         buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
@@ -56,13 +63,13 @@ class SettingsDialog(QDialog):
     def result_settings(self) -> Settings:
         """Return a copy of the settings with the edited fields applied.
 
-        Non-edited fields (last-used folders, language) are preserved. A blank
-        currency falls back to the previous value so price rendering never
-        loses its unit.
+        Non-edited fields (last-used folders) are preserved. A blank currency
+        falls back to the previous value so price rendering never loses its unit.
         """
         return replace(
             self._settings,
             author=self.author_edit.text().strip(),
             currency=self.currency_edit.text().strip() or self._settings.currency,
+            language=self.language_combo.currentData(),
             theme=self.theme_combo.currentData(),
         )

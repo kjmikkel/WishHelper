@@ -5,6 +5,7 @@ from __future__ import annotations
 import datetime
 import os
 
+from PySide6.QtCore import Qt
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import (
     QAbstractItemView as AIV,
@@ -28,7 +29,7 @@ from wishhelper import storage
 from wishhelper.errors import WishHelperError
 from wishhelper.exporters.pdf import export_pdf
 from wishhelper.exporters.text import export_text
-from wishhelper.i18n import t
+from wishhelper.i18n import set_language, t
 from wishhelper.models import WishList
 from wishhelper.settings import Settings, save_settings
 from wishhelper.ui.resources import APP_ICON
@@ -72,9 +73,11 @@ class MainWindow(QMainWindow):
         self.year_spin.setValue(self._model.wishlist().year)
         self.include_year_check = QCheckBox(t("label_include_year"))
         self.include_year_check.setChecked(self._model.wishlist().include_year)
-        doc_row.addWidget(QLabel(t("label_event")))
+        self._event_label = QLabel(t("label_event"))
+        self._year_label = QLabel(t("label_year"))
+        doc_row.addWidget(self._event_label)
         doc_row.addWidget(self.event_edit)
-        doc_row.addWidget(QLabel(t("label_year")))
+        doc_row.addWidget(self._year_label)
         doc_row.addWidget(self.year_spin)
         doc_row.addWidget(self.include_year_check)
         outer.addLayout(doc_row)
@@ -105,19 +108,36 @@ class MainWindow(QMainWindow):
         # Bottom bar holds document-level actions only; row actions (add/edit/
         # delete) live in the table itself (phantom add row + action column).
         bar = QHBoxLayout()
-        for label, slot in [
-            (t("action_load"), self._load),
-            (t("action_save"), self._save),
-            (t("action_export_pdf"), self._export_pdf),
-            (t("action_export_text"), self._export_text),
-            (t("action_settings"), self._open_settings),
+        self._action_buttons: list[tuple[QPushButton, str]] = []
+        for key, slot in [
+            ("action_load", self._load),
+            ("action_save", self._save),
+            ("action_export_pdf", self._export_pdf),
+            ("action_export_text", self._export_text),
+            ("action_settings", self._open_settings),
         ]:
-            button = QPushButton(label)
+            button = QPushButton(t(key))
             button.clicked.connect(slot)
             bar.addWidget(button)
+            self._action_buttons.append((button, key))
         outer.addLayout(bar)
 
         self.setCentralWidget(central)
+
+    def _retranslate_ui(self) -> None:
+        """Re-apply all main-window text in the active language (after a
+        language change). Widgets cache their text, so each must be re-set; the
+        table header and action-column labels come from `t()` live and only need
+        a refresh nudge."""
+        self.setWindowTitle(t("app_title"))
+        self._event_label.setText(t("label_event"))
+        self._year_label.setText(t("label_year"))
+        self.include_year_check.setText(t("label_include_year"))
+        for button, key in self._action_buttons:
+            button.setText(t(key))
+        self._model.headerDataChanged.emit(
+            Qt.Horizontal, 0, self._model.columnCount() - 1)
+        self.table.viewport().update()
 
     # --- document sync ------------------------------------------------------
     def _sync_document_fields(self) -> None:
@@ -161,6 +181,8 @@ class MainWindow(QMainWindow):
             return
         self._settings = dialog.result_settings()
         apply_theme(QApplication.instance(), self._settings.theme)
+        set_language(self._settings.language)
+        self._retranslate_ui()
         # Reflect the new author/currency defaults in the open document so the
         # price column and exports use them immediately.
         wishlist = self._model.wishlist()
