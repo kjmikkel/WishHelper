@@ -19,7 +19,17 @@ Create a prioritized wishlist and export it as plain text or a polished PDF.
 
 ## Install
 
-From the project root:
+One step from the project root — creates a `.venv` and installs WishHelper into it:
+
+```sh
+./install.sh      # macOS / Linux
+```
+
+```powershell
+.\install.ps1     # Windows
+```
+
+To do it manually instead:
 
 ```sh
 python -m venv .venv
@@ -29,6 +39,18 @@ pip install -e ".[dev]"
 ```
 
 ## Run
+
+```sh
+./run.sh          # macOS / Linux
+```
+
+```powershell
+.\run.ps1         # Windows
+```
+
+`run` launches via the `.venv` interpreter without activating it — your shell and
+working directory are left untouched — and installs first if the `.venv` is
+missing. To run manually from an activated venv:
 
 ```sh
 python -m wishhelper

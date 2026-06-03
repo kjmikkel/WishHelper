@@ -92,7 +92,10 @@ Plan: `docs/superpowers/plans/2026-06-01-wishhelper-modernization.md`
   edge case.
 - **Effort:** small.
 
-## 7. One-step install script
+## 7. One-step install script — ✅ DONE
+- **Status:** Done. `install.sh` + `install.ps1` create `.venv` (checking for
+  Python 3.12+) and `pip install -e ".[dev]"`; idempotent and cwd-preserving;
+  documented in `README.md`. `.gitattributes` pins `*.sh` to LF.
 - **Where:** new `install.sh` (+ a Windows sibling, e.g. `install.ps1`) at the
   repo root; reference it from `README.md`.
 - **Now:** install is manual and multi-step (see README): create a venv, activate
@@ -107,7 +110,10 @@ Plan: `docs/superpowers/plans/2026-06-01-wishhelper-modernization.md`
 - **Why deferred:** the manual steps work; this is onboarding convenience.
 - **Effort:** small.
 
-## 8. One-step launch script
+## 8. One-step launch script — ✅ DONE
+- **Status:** Done. `run.sh` + `run.ps1` invoke the app via the `.venv`
+  interpreter directly (no activation), so the shell/cwd are untouched on exit;
+  they auto-run the installer if `.venv` is absent. Documented in `README.md`.
 - **Where:** new `run.sh` (+ a Windows sibling, e.g. `run.ps1`) at the repo root;
   reference it from `README.md`.
 - **Now:** launching requires activating the venv first, then `python -m
