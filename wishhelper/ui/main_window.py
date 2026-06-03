@@ -82,6 +82,14 @@ class MainWindow(QMainWindow):
         doc_row.addWidget(self.include_year_check)
         outer.addLayout(doc_row)
 
+        # Read-only view of the document's own currency/author (these travel with
+        # a loaded file and are otherwise only editable via the settings dialog).
+        info_row = QHBoxLayout()
+        self._doc_info_label = QLabel(self._doc_info_text())
+        info_row.addWidget(self._doc_info_label)
+        info_row.addStretch(1)
+        outer.addLayout(info_row)
+
         # Table
         self.table = QTableView()
         self.table.setModel(self._model)
@@ -124,6 +132,16 @@ class MainWindow(QMainWindow):
 
         self.setCentralWidget(central)
 
+    def _doc_info_text(self) -> str:
+        wl = self._model.wishlist()
+        parts = [f'{t("label_currency")}: {wl.currency}']
+        if wl.author:
+            parts.append(f'{t("label_author")}: {wl.author}')
+        return "      ".join(parts)
+
+    def _update_doc_info(self) -> None:
+        self._doc_info_label.setText(self._doc_info_text())
+
     def _retranslate_ui(self) -> None:
         """Re-apply all main-window text in the active language (after a
         language change). Widgets cache their text, so each must be re-set; the
@@ -135,6 +153,7 @@ class MainWindow(QMainWindow):
         self.include_year_check.setText(t("label_include_year"))
         for button, key in self._action_buttons:
             button.setText(t(key))
+        self._update_doc_info()
         self._model.headerDataChanged.emit(
             Qt.Horizontal, 0, self._model.columnCount() - 1)
         self.table.viewport().update()
@@ -189,6 +208,7 @@ class MainWindow(QMainWindow):
         wishlist.author = self._settings.author
         wishlist.currency = self._settings.currency
         self._model.set_wishlist(wishlist)
+        self._update_doc_info()
         self._persist_settings()
 
     def _load(self) -> None:
@@ -206,6 +226,7 @@ class MainWindow(QMainWindow):
         self.event_edit.setText(wishlist.event)
         self.year_spin.setValue(wishlist.year or self.year_spin.value())
         self.include_year_check.setChecked(wishlist.include_year)
+        self._update_doc_info()
         self._settings.last_load_dir = os.path.dirname(path)
         self._persist_settings()
 

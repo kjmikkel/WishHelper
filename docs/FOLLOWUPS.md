@@ -75,7 +75,10 @@ Plan: `docs/superpowers/plans/2026-06-01-wishhelper-modernization.md`
 - **Why deferred:** pragmatic and currently green; only a maintenance risk.
 - **Effort:** small if/when it breaks.
 
-## 5. Loaded file's `currency`/`author` aren't surfaced in the UI
+## 5. Loaded file's `currency`/`author` aren't surfaced in the UI — ✅ DONE
+- **Status:** Done (read-only). A `_doc_info_label` under the document row shows
+  the document's own `Valuta`/`Forfatter`, refreshed on load, on settings change,
+  and on language switch. Editing them stays in the settings dialog by design.
 - **Where:** `wishhelper/ui/main_window.py` — `_load()`.
 - **Now:** a loaded wishlist carries its own `currency`/`author`; the table shows
   the right prices, but there's no visible field for them and they can only be
