@@ -2,13 +2,25 @@
 name = "wishhelper"
 version = "2.1.0"
 description = "Create a prioritized wishlist and export it as text or PDF."
+readme = "README.md"
 requires-python = ">=3.12"
 license = { text = "GPL-3.0-or-later" }
 authors = [{ name = "Mikkel Kjær Jensen" }]
+classifiers = [
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: OS Independent",
+    "Environment :: X11 Applications :: Qt",
+    "Topic :: Office/Business",
+]
 dependencies = [
     "PySide6>=6.7",
     "reportlab>=4.1",
 ]
+
+[project.urls]
+Homepage = "https://github.com/kjmikkel/WishHelper"
+Repository = "https://github.com/kjmikkel/WishHelper"
+Changelog = "https://github.com/kjmikkel/WishHelper/blob/master/CHANGELOG.md"
 
 [project.optional-dependencies]
 dev = ["pytest>=8.0", "pypdf>=4.0", "pyinstaller>=6.0"]
