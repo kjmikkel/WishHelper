@@ -33,6 +33,8 @@ STRINGS_DA: dict[str, str] = {
     "action_export_pdf": "Eksportér som PDF",
     "action_export_text": "Eksportér som tekst",
     "action_settings": "Indstillinger",
+    "action_quit": "Afslut",
+    "tray_show": "Vis",
     # Field labels
     "label_event": "Begivenhed",
     "label_year": "År",
@@ -86,6 +88,8 @@ STRINGS_EN: dict[str, str] = {
     "action_export_pdf": "Export as PDF",
     "action_export_text": "Export as text",
     "action_settings": "Settings",
+    "action_quit": "Quit",
+    "tray_show": "Show",
     # Field labels
     "label_event": "Event",
     "label_year": "Year",

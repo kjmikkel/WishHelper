@@ -139,7 +139,12 @@ Plan: `docs/superpowers/plans/2026-06-01-wishhelper-modernization.md`
 - **Why deferred:** the two-step launch works; this is everyday convenience.
 - **Effort:** small.
 
-## 9. System tray icon
+## 9. System tray icon — ✅ DONE
+- **Status:** Done. `MainWindow._build_tray()` shows a `QSystemTrayIcon` (reusing
+  `APP_ICON`) with a Show/Quit menu and left-click-to-raise, guarded on
+  `isSystemTrayAvailable()`. Per decision, the window's close button still quits
+  (no minimise-to-tray); the tray is presence + a re-raise shortcut. Menu/tooltip
+  retranslate with the UI language.
 - **Where:** `wishhelper/ui/main_window.py` (or a small new `ui/tray.py`); reuse
   `APP_ICON` from `wishhelper/ui/resources.py`.
 - **Now:** the app only lives in its main window; closing it quits. There is no

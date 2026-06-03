@@ -17,9 +17,11 @@ from PySide6.QtWidgets import (
     QLabel,
     QLineEdit,
     QMainWindow,
+    QMenu,
     QMessageBox,
     QPushButton,
     QSpinBox,
+    QSystemTrayIcon,
     QTableView,
     QVBoxLayout,
     QWidget,
@@ -49,6 +51,7 @@ class MainWindow(QMainWindow):
         self.setWindowIcon(QIcon(APP_ICON))
         self._model = WishTableModel(self._new_wishlist())
         self._build_ui()
+        self._build_tray()
         # Follow the OS colour scheme live while the theme is "system". The
         # lambda reads the live setting, which _open_settings may replace.
         self._theme_follower = install_color_scheme_follower(
@@ -157,6 +160,41 @@ class MainWindow(QMainWindow):
         self._model.headerDataChanged.emit(
             Qt.Horizontal, 0, self._model.columnCount() - 1)
         self.table.viewport().update()
+        if self._tray is not None:
+            self._tray.setToolTip(t("app_title"))
+            self._tray_show_action.setText(t("tray_show"))
+            self._tray_quit_action.setText(t("action_quit"))
+
+    # --- system tray --------------------------------------------------------
+    def _build_tray(self) -> None:
+        """Show a tray icon (presence + Show/Quit menu) where a tray exists.
+
+        The window's close button still quits the app (default Qt behaviour);
+        the tray is a shortcut to re-raise a minimised window, not a hide target.
+        """
+        if not QSystemTrayIcon.isSystemTrayAvailable():
+            self._tray = None
+            return
+        self._tray = QSystemTrayIcon(QIcon(APP_ICON), self)
+        self._tray.setToolTip(t("app_title"))
+        menu = QMenu()
+        self._tray_show_action = menu.addAction(t("tray_show"))
+        self._tray_show_action.triggered.connect(self._show_from_tray)
+        self._tray_quit_action = menu.addAction(t("action_quit"))
+        self._tray_quit_action.triggered.connect(QApplication.instance().quit)
+        self._tray.setContextMenu(menu)
+        self._tray_menu = menu  # keep a reference alive
+        self._tray.activated.connect(self._on_tray_activated)
+        self._tray.show()
+
+    def _show_from_tray(self) -> None:
+        self.showNormal()
+        self.raise_()
+        self.activateWindow()
+
+    def _on_tray_activated(self, reason) -> None:
+        if reason == QSystemTrayIcon.ActivationReason.Trigger:  # left click
+            self._show_from_tray()
 
     # --- document sync ------------------------------------------------------
     def _sync_document_fields(self) -> None:

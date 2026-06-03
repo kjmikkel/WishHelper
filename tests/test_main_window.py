@@ -40,6 +40,12 @@ def test_doc_info_omits_author_when_blank(app):
     assert "Forfatter" not in text  # author label hidden when empty
 
 
+def test_tray_guarded_when_unavailable(app):
+    # Offscreen has no system tray, so _build_tray must no-op safely (not crash).
+    window = MainWindow(Settings(), "ignored.json")
+    assert window._tray is None
+
+
 def test_retranslation_switches_button_and_info_language(app):
     window = MainWindow(Settings(language="da"), "ignored.json")
     assert window._action_buttons[0][0].text() == "Hent"
